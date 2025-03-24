@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { useStore } from "@/context/StoreContext";
@@ -11,12 +11,21 @@ import { toast } from "sonner";
 import LazyImage from "@/components/LazyImage";
 import { Check } from "lucide-react";
 
+// Define Razorpay types
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 type CheckoutStep = "shipping" | "payment" | "confirmation";
 
 const CheckoutPage = () => {
   const { cart, getCartTotal, clearCart } = useStore();
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("shipping");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const navigate = useNavigate();
   
   // Form state
@@ -36,6 +45,28 @@ const CheckoutPage = () => {
   const shipping = subtotal >= 100 ? 0 : 8.95;
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + shipping + tax;
+  
+  // Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => {
+      setRazorpayLoaded(true);
+      console.log('Razorpay script loaded successfully');
+    };
+    script.onerror = () => {
+      console.error('Failed to load Razorpay script');
+      toast.error('Failed to load payment gateway. Please try again.');
+    };
+    document.body.appendChild(script);
+    
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -73,10 +104,60 @@ const CheckoutPage = () => {
     }
   };
   
-  const handlePlaceOrder = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRazorpayPayment = () => {
+    if (!razorpayLoaded) {
+      toast.error('Payment gateway is still loading. Please try again.');
+      return;
+    }
     
     setIsProcessing(true);
+    
+    // Create Razorpay order object
+    const options = {
+      key: 'rzp_test_YOUR_KEY_ID', // Replace with your Razorpay test key
+      amount: Math.round(total * 100), // Amount in paisa (multiply by 100)
+      currency: 'INR',
+      name: 'FitFlex',
+      description: 'Purchase from FitFlex store',
+      image: 'https://your-logo-url.com/logo.png', // Replace with your logo URL
+      handler: function(response: any) {
+        // Payment successful
+        console.log('Payment successful:', response);
+        // Process order
+        processOrder(response.razorpay_payment_id);
+      },
+      prefill: {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        contact: formData.phone || ''
+      },
+      notes: {
+        address: formData.address
+      },
+      theme: {
+        color: '#3399cc'
+      },
+      modal: {
+        ondismiss: function() {
+          setIsProcessing(false);
+          toast.error('Payment cancelled');
+        }
+      }
+    };
+    
+    try {
+      const razorpayInstance = new window.Razorpay(options);
+      razorpayInstance.open();
+    } catch (error) {
+      console.error('Razorpay error:', error);
+      setIsProcessing(false);
+      toast.error('Payment gateway error. Please try again.');
+    }
+  };
+  
+  const processOrder = (paymentId: string = '') => {
+    // In a real app, you would save the order to your database here
+    console.log('Processing order with payment ID:', paymentId);
     
     // Simulate processing
     setTimeout(() => {
@@ -84,7 +165,19 @@ const CheckoutPage = () => {
       setCurrentStep("confirmation");
       clearCart();
       window.scrollTo(0, 0);
-    }, 2000);
+    }, 1000);
+  };
+  
+  const handlePlaceOrder = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (paymentMethod === 'razorpay') {
+      handleRazorpayPayment();
+    } else {
+      // Cash on delivery
+      setIsProcessing(true);
+      processOrder();
+    }
   };
   
   const handleBackToShopping = () => {
@@ -249,27 +342,37 @@ const CheckoutPage = () => {
                 
                 <form onSubmit={handlePlaceOrder}>
                   <div className="mb-6">
-                    <div className="flex items-center p-4 border rounded-lg mb-4">
+                    <div 
+                      className={`flex items-center p-4 border rounded-lg mb-4 cursor-pointer ${paymentMethod === 'razorpay' ? 'border-primary' : 'border-border'}`}
+                      onClick={() => setPaymentMethod('razorpay')}
+                    >
                       <input
                         type="radio"
-                        id="paypal"
+                        id="razorpay"
                         name="paymentMethod"
                         className="h-4 w-4 text-primary"
-                        defaultChecked
+                        checked={paymentMethod === 'razorpay'}
+                        onChange={() => setPaymentMethod('razorpay')}
                       />
-                      <label htmlFor="paypal" className="ml-2 flex items-center">
-                        <span className="font-medium">PayPal</span>
+                      <label htmlFor="razorpay" className="ml-2 flex items-center cursor-pointer">
+                        <span className="font-medium mr-2">Pay with Razorpay</span>
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">Test Mode</span>
                       </label>
                     </div>
                     
-                    <div className="flex items-center p-4 border rounded-lg">
+                    <div 
+                      className={`flex items-center p-4 border rounded-lg cursor-pointer ${paymentMethod === 'cod' ? 'border-primary' : 'border-border'}`}
+                      onClick={() => setPaymentMethod('cod')}
+                    >
                       <input
                         type="radio"
                         id="cod"
                         name="paymentMethod"
                         className="h-4 w-4 text-primary"
+                        checked={paymentMethod === 'cod'}
+                        onChange={() => setPaymentMethod('cod')}
                       />
-                      <label htmlFor="cod" className="ml-2 flex items-center">
+                      <label htmlFor="cod" className="ml-2 flex items-center cursor-pointer">
                         <span className="font-medium">Cash on Delivery</span>
                       </label>
                     </div>
@@ -285,6 +388,11 @@ const CheckoutPage = () => {
                         <li>Privacy Policy</li>
                         <li>Return Policy</li>
                       </ul>
+                      {paymentMethod === 'razorpay' && (
+                        <p className="mt-2 text-xs bg-yellow-50 p-2 rounded border border-yellow-200 text-yellow-800">
+                          <strong>Test Mode Notice:</strong> This is a test payment. No actual charges will be made. Use test card number 4111 1111 1111 1111, any future expiry date, any CVV, and any OTP for testing.
+                        </p>
+                      )}
                     </div>
                   </div>
                   
@@ -300,9 +408,9 @@ const CheckoutPage = () => {
                     <Button
                       type="submit"
                       className="flex-1"
-                      disabled={isProcessing}
+                      disabled={isProcessing || (paymentMethod === 'razorpay' && !razorpayLoaded)}
                     >
-                      {isProcessing ? "Processing..." : "Place Order"}
+                      {isProcessing ? "Processing..." : `Place Order${paymentMethod === 'razorpay' ? ' & Pay' : ''}`}
                     </Button>
                   </div>
                 </form>
