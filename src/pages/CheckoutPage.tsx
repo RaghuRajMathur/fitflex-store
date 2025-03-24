@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import LazyImage from "@/components/LazyImage";
 import { Check } from "lucide-react";
 
@@ -57,7 +57,11 @@ const CheckoutPage = () => {
     };
     script.onerror = () => {
       console.error('Failed to load Razorpay script');
-      toast.error('Failed to load payment gateway. Please try again.');
+      toast({
+        title: "Payment Error",
+        description: "Failed to load payment gateway. Please try again.",
+        variant: "destructive",
+      });
     };
     document.body.appendChild(script);
     
@@ -80,7 +84,11 @@ const CheckoutPage = () => {
     
     for (const field of requiredFields) {
       if (!formData[field as keyof typeof formData]) {
-        toast.error(`Please enter your ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+        toast({
+          title: "Missing Information",
+          description: `Please enter your ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`,
+          variant: "destructive",
+        });
         return false;
       }
     }
@@ -88,7 +96,11 @@ const CheckoutPage = () => {
     // Simple email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      toast.error("Please enter a valid email address");
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
       return false;
     }
     
@@ -106,7 +118,11 @@ const CheckoutPage = () => {
   
   const handleRazorpayPayment = () => {
     if (!razorpayLoaded) {
-      toast.error('Payment gateway is still loading. Please try again.');
+      toast({
+        title: "Payment Gateway Loading",
+        description: "Payment gateway is still loading. Please try again.",
+        variant: "destructive",
+      });
       return;
     }
     
@@ -114,7 +130,7 @@ const CheckoutPage = () => {
     
     // Create Razorpay order object
     const options = {
-      key: 'rzp_test_YOUR_KEY_ID', // Replace with your Razorpay test key
+      key: 'rzp_test_Kl07zihGae5UHe', // Using the provided test key
       amount: Math.round(total * 100), // Amount in paisa (multiply by 100)
       currency: 'INR',
       name: 'FitFlex',
@@ -125,6 +141,11 @@ const CheckoutPage = () => {
         console.log('Payment successful:', response);
         // Process order
         processOrder(response.razorpay_payment_id);
+        
+        toast({
+          title: "Payment Successful",
+          description: "Your payment was processed successfully!",
+        });
       },
       prefill: {
         name: `${formData.firstName} ${formData.lastName}`,
@@ -140,7 +161,11 @@ const CheckoutPage = () => {
       modal: {
         ondismiss: function() {
           setIsProcessing(false);
-          toast.error('Payment cancelled');
+          toast({
+            title: "Payment Cancelled",
+            description: "Your payment was cancelled.",
+            variant: "destructive",
+          });
         }
       }
     };
@@ -151,7 +176,11 @@ const CheckoutPage = () => {
     } catch (error) {
       console.error('Razorpay error:', error);
       setIsProcessing(false);
-      toast.error('Payment gateway error. Please try again.');
+      toast({
+        title: "Payment Error",
+        description: "Payment gateway error. Please try again.",
+        variant: "destructive",
+      });
     }
   };
   
@@ -165,6 +194,11 @@ const CheckoutPage = () => {
       setCurrentStep("confirmation");
       clearCart();
       window.scrollTo(0, 0);
+      
+      toast({
+        title: "Order Placed",
+        description: "Your order has been placed successfully!",
+      });
     }, 1000);
   };
   
