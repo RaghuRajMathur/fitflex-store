@@ -7,6 +7,27 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  created_at: string;
+  image_url: string | null;
+}
+
+interface OrderWithProfile {
+  id: string;
+  status: string;
+  total: number;
+  created_at: string;
+  user_id: string;
+  profiles?: {
+    first_name: string | null;
+    last_name: string | null;
+  } | null;
+}
+
 const AdminDashboard = () => {
   const { data: productsCount = 0, isLoading: isLoadingProducts } = useQuery({
     queryKey: ["productsCount"],
@@ -199,7 +220,7 @@ const RecentProducts = () => {
 
   return (
     <div className="space-y-2">
-      {products.map((product) => (
+      {products.map((product: Product) => (
         <div
           key={product.id}
           className="flex items-center gap-3 rounded-md border p-3"
@@ -236,7 +257,7 @@ const RecentOrders = () => {
         .limit(5);
       
       if (error) throw error;
-      return data || [];
+      return (data || []) as OrderWithProfile[];
     }
   });
 
@@ -274,7 +295,7 @@ const RecentOrders = () => {
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate">
-              {order.profiles?.first_name} {order.profiles?.last_name}
+              {order.profiles?.first_name || 'Unknown'} {order.profiles?.last_name || 'User'}
             </p>
             <p className="text-sm text-muted-foreground">
               ${order.total} - {order.status}

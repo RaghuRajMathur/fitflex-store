@@ -52,10 +52,10 @@ interface Order {
   total: number;
   created_at: string;
   updated_at: string;
-  profiles: {
+  profiles?: {
     first_name: string | null;
     last_name: string | null;
-  };
+  } | null;
 }
 
 interface OrderItem {
@@ -111,7 +111,7 @@ const AdminOrders = () => {
       const { data, error } = await query;
       
       if (error) throw error;
-      return data || [];
+      return (data || []) as Order[];
     }
   });
   
@@ -249,7 +249,7 @@ const AdminOrders = () => {
                       #{order.id.substring(0, 8)}
                     </TableCell>
                     <TableCell>
-                      {order.profiles?.first_name} {order.profiles?.last_name}
+                      {order.profiles?.first_name || 'Unknown'} {order.profiles?.last_name || 'User'}
                     </TableCell>
                     <TableCell>
                       {format(new Date(order.created_at), "MMM d, yyyy")}
@@ -309,7 +309,7 @@ const AdminOrders = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <h3 className="font-medium">Customer</h3>
-                  <p>{viewingOrder.profiles?.first_name} {viewingOrder.profiles?.last_name}</p>
+                  <p>{viewingOrder.profiles?.first_name || 'Unknown'} {viewingOrder.profiles?.last_name || 'User'}</p>
                 </div>
                 
                 <div className="space-y-2">

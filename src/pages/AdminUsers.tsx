@@ -51,6 +51,11 @@ interface Profile {
   email?: string;
 }
 
+type AuthUser = {
+  id: string;
+  email?: string;
+};
+
 const AdminUsers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [editingUser, setEditingUser] = useState<Profile | null>(null);
@@ -77,13 +82,20 @@ const AdminUsers = () => {
       const { data: profiles, error } = await query;
       if (error) throw error;
 
-      // Get emails from auth.users
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-      if (authError) throw authError;
+      // Get emails from auth users
+      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
+      if (authError) {
+        console.error("Error fetching auth users:", authError);
+        // Return profiles without emails if we can't fetch auth users
+        return profiles.map(profile => ({ ...profile, email: undefined }));
+      }
 
+      // Map auth users to profiles
+      const authUsers = authData?.users || [];
+      
       // Combine the data
       const usersWithEmail = profiles.map(profile => {
-        const authUser = authUsers.users.find(user => user.id === profile.id);
+        const authUser = authUsers.find(user => user.id === profile.id);
         return {
           ...profile,
           email: authUser?.email
@@ -227,7 +239,7 @@ const AdminUsers = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                users.map((user) => (
+                users.map((user: Profile) => (
                   <TableRow key={user.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
