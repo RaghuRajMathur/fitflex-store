@@ -5,7 +5,7 @@ import ProductGrid from "@/components/ProductGrid";
 import FilterSidebar from "@/components/FilterSidebar";
 import { useStore } from "@/context/StoreContext";
 import { Button } from "@/components/ui/button";
-import { FilterIcon, Search } from "lucide-react";
+import { FilterIcon, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";

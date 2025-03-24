@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,31 +23,33 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <StoreProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/category/:category" element={<CategoryPage />} />
-            <Route path="/product/:id" element={<ProductPage />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/favorites" element={<FavoritesPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/:policy" element={<PolicyPage />} />
-            <Route path="/account" element={<AccountPage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </StoreProvider>
-  </QueryClientProvider>
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <StoreProvider>
+        <TooltipProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/category/:category" element={<CategoryPage />} />
+              <Route path="/product/:id" element={<ProductPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/favorites" element={<FavoritesPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/:policy" element={<PolicyPage />} />
+              <Route path="/account" element={<AccountPage />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+          <Toaster />
+          <Sonner />
+        </TooltipProvider>
+      </StoreProvider>
+    </QueryClientProvider>
+  </React.StrictMode>
 );
 
 export default App;
