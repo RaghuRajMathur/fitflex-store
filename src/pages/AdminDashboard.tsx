@@ -244,20 +244,36 @@ const RecentOrders = () => {
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["recentOrders"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First fetch orders
+      const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
-        .select(`
-          *,
-          profiles:user_id (
-            first_name,
-            last_name
-          )
-        `)
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(5);
       
-      if (error) throw error;
-      return (data || []) as OrderWithProfile[];
+      if (ordersError) throw ordersError;
+      
+      // Then fetch profiles for those orders
+      const orderResults = await Promise.all(
+        (ordersData || []).map(async (order) => {
+          if (!order.user_id) {
+            return { ...order, profiles: null };
+          }
+          
+          const { data: profileData, error: profileError } = await supabase
+            .from("profiles")
+            .select("first_name, last_name")
+            .eq("id", order.user_id)
+            .single();
+            
+          return {
+            ...order,
+            profiles: profileError ? null : profileData
+          };
+        })
+      );
+      
+      return orderResults as OrderWithProfile[];
     }
   });
 

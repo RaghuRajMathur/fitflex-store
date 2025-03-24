@@ -93,25 +93,55 @@ const AdminOrders = () => {
   const { data: orders = [], isLoading, refetch } = useQuery({
     queryKey: ["orders", searchQuery],
     queryFn: async () => {
+      // First, get all orders
       let query = supabase
         .from("orders")
-        .select(`
-          *,
-          profiles:user_id (
-            first_name,
-            last_name
-          )
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
         
-      if (searchQuery) {
-        query = query.or(`profiles.first_name.ilike.%${searchQuery}%,profiles.last_name.ilike.%${searchQuery}%`);
-      }
-        
-      const { data, error } = await query;
+      const { data: ordersData, error: ordersError } = await query;
+      if (ordersError) throw ordersError;
       
-      if (error) throw error;
-      return (data || []) as Order[];
+      // Then, for each order, fetch the associated profile
+      const processedOrders = await Promise.all(
+        (ordersData || []).map(async (order) => {
+          if (!order.user_id) {
+            return { ...order, profiles: null };
+          }
+          
+          let profileQuery = supabase
+            .from("profiles")
+            .select("first_name, last_name")
+            .eq("id", order.user_id)
+            .single();
+            
+          // Apply search filter if provided
+          if (searchQuery) {
+            const { data: profileData, error: profileError } = await supabase
+              .from("profiles")
+              .select("first_name, last_name")
+              .eq("id", order.user_id)
+              .or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%`)
+              .single();
+              
+            if (profileError || !profileData) {
+              return null; // Skip this order if it doesn't match search
+            }
+            
+            return { ...order, profiles: profileData };
+          } else {
+            const { data: profileData, error: profileError } = await profileQuery;
+            return { 
+              ...order, 
+              profiles: profileError ? null : profileData 
+            };
+          }
+        })
+      );
+      
+      // Filter out null values (orders that didn't match search)
+      const filteredOrders = processedOrders.filter(Boolean) as Order[];
+      return filteredOrders;
     }
   });
   
