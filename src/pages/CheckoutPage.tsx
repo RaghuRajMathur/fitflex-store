@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -164,7 +165,7 @@ const CheckoutPage = () => {
       const shippingAddressId = await saveShippingAddress();
       
       // Explicitly type the order insert data
-      const orderData: Tables<'orders'>['Insert'] = {
+      const orderData = {
         user_id: user?.id,
         total: total,
         status: paymentMethod === 'cod' ? 'pending' : 'processing',
@@ -183,7 +184,7 @@ const CheckoutPage = () => {
       if (orderError) throw orderError;
       
       // Prepare order items with correct type
-      const orderItems: Tables<'order_items'>['Insert'][] = cart.map(item => ({
+      const orderItems = cart.map(item => ({
         order_id: insertedOrder.id,
         product_id: item.product.id,
         quantity: item.quantity,
