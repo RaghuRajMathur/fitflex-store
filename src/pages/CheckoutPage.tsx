@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -21,6 +20,20 @@ declare global {
 }
 
 type CheckoutStep = "shipping" | "payment" | "confirmation";
+
+// Interface for shipping address
+interface ShippingAddress {
+  id: string;
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  address: string;
+  city: string;
+  state: string;
+  zip_code: string;
+}
 
 const CheckoutPage = () => {
   const { cart, getCartTotal, clearCart } = useStore();
@@ -122,26 +135,22 @@ const CheckoutPage = () => {
   
   const saveShippingAddress = async () => {
     try {
-      // Save shipping address
-      const { data: addressData, error: addressError } = await supabase
-        .from('shipping_addresses')
-        .insert({
-          user_id: user?.id,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          phone: formData.phone || null,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          zip_code: formData.zipCode
-        })
-        .select()
-        .single();
+      // Use direct SQL query to insert shipping address and return the ID
+      const { data, error } = await supabase.rpc('save_shipping_address', {
+        user_id: user?.id,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone || null,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zip_code: formData.zipCode
+      });
       
-      if (addressError) throw addressError;
+      if (error) throw error;
       
-      return addressData.id;
+      return data;
     } catch (error) {
       console.error('Error saving shipping address:', error);
       throw error;
