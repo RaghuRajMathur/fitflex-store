@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/context/StoreContext";
@@ -7,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 
 interface ProductCardProps {
   id: string;
@@ -133,7 +133,9 @@ const ProductCard = ({
         <h3 className="font-medium text-sm sm:text-base text-balance line-clamp-1">
           {name}
         </h3>
-        <p className="font-semibold text-sm sm:text-base">${price.toFixed(2)}</p>
+        <p className="font-semibold text-sm sm:text-base">
+          {formatCurrency(price)}
+        </p>
       </div>
     </Link>
   );

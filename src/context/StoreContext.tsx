@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { toast } from "sonner";
 
@@ -56,13 +55,13 @@ type StoreProviderProps = {
   children: ReactNode;
 };
 
-// Sample product data
+// Adjust initial product prices (converting from USD to INR, approximate rate)
 const initialProducts: Product[] = [
   {
     id: "barbell-olympic",
     name: "Olympic Barbell",
     category: "strength",
-    price: 199.99,
+    price: 16499, // Converted from $199.99
     image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800&auto=format&fit=crop",
     description: "Professional-grade Olympic barbell, perfect for serious lifters. 20kg weight, 7.2ft length with knurled grip for maximum performance.",
     inStock: true,
@@ -80,7 +79,7 @@ const initialProducts: Product[] = [
     id: "kettlebell-16kg",
     name: "Cast Iron Kettlebell 16kg",
     category: "strength",
-    price: 59.99,
+    price: 4999, // Converted from $59.99
     image: "https://images.unsplash.com/photo-1603455778956-d71832eafa4e?w=800&auto=format&fit=crop",
     description: "Premium cast iron kettlebell with a comfortable grip. Perfect for swings, squats, and other kettlebell exercises.",
     inStock: true,
@@ -97,7 +96,7 @@ const initialProducts: Product[] = [
     id: "dumbbell-set",
     name: "Adjustable Dumbbell Set",
     category: "strength",
-    price: 299.99,
+    price: 24999, // Converted from $299.99
     image: "https://images.unsplash.com/photo-1638536532686-d610adff3c04?w=800&auto=format&fit=crop",
     description: "Versatile adjustable dumbbell set that replaces 15 pairs of weights. Adjust weight from 5 to 52.5 pounds with the twist of a dial.",
     inStock: true,
@@ -265,7 +264,10 @@ const initialProducts: Product[] = [
       "Sizes": "S to XL"
     }
   }
-];
+].map(product => ({
+  ...product,
+  price: Math.round(product.price) // Ensure whole number rupees
+}));
 
 export const StoreProvider = ({ children }: StoreProviderProps) => {
   const [products] = useState<Product[]>(initialProducts);
@@ -282,7 +284,6 @@ export const StoreProvider = ({ children }: StoreProviderProps) => {
     inStock: null
   });
 
-  // Load cart and liked items from localStorage on component mount
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     const savedLiked = localStorage.getItem('liked');
@@ -304,7 +305,6 @@ export const StoreProvider = ({ children }: StoreProviderProps) => {
     }
   }, []);
 
-  // Save cart and liked items to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
@@ -409,12 +409,10 @@ export const StoreProvider = ({ children }: StoreProviderProps) => {
 
   const getFilteredProducts = () => {
     return products.filter(product => {
-      // Category filter
       if (filters.category && product.category !== filters.category) {
         return false;
       }
       
-      // Price range filter
       if (filters.minPrice !== null && product.price < filters.minPrice) {
         return false;
       }
@@ -422,7 +420,6 @@ export const StoreProvider = ({ children }: StoreProviderProps) => {
         return false;
       }
       
-      // Stock filter
       if (filters.inStock !== null && product.inStock !== filters.inStock) {
         return false;
       }
