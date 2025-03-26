@@ -11,6 +11,7 @@ import LazyImage from "@/components/LazyImage";
 import { Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
+import { Tables } from "@/integrations/supabase/types";
 
 // Define Razorpay types
 declare global {
@@ -135,17 +136,17 @@ const CheckoutPage = () => {
   
   const saveShippingAddress = async () => {
     try {
-      // Use direct SQL query to insert shipping address and return the ID
-      const { data, error } = await supabase.rpc('save_shipping_address', {
-        user_id: user?.id,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        phone: formData.phone || null,
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        zip_code: formData.zipCode
+      // Use direct SQL function call to insert shipping address
+      const { data, error } = await supabase.rpc('create_shipping_address', {
+        p_user_id: user?.id,
+        p_first_name: formData.firstName,
+        p_last_name: formData.lastName,
+        p_email: formData.email,
+        p_phone: formData.phone || null,
+        p_address: formData.address,
+        p_city: formData.city,
+        p_state: formData.state,
+        p_zip_code: formData.zipCode
       });
       
       if (error) throw error;
@@ -162,38 +163,42 @@ const CheckoutPage = () => {
       // First save the shipping address
       const shippingAddressId = await saveShippingAddress();
       
-      // Then create the order
-      const { data: orderData, error: orderError } = await supabase
+      // Explicitly type the order insert data
+      const orderData: Tables<'orders'>['Insert'] = {
+        user_id: user?.id,
+        total: total,
+        status: paymentMethod === 'cod' ? 'pending' : 'processing',
+        payment_id: paymentId || null,
+        payment_method: paymentMethod,
+        shipping_address_id: shippingAddressId
+      };
+      
+      // Insert order
+      const { data: insertedOrder, error: orderError } = await supabase
         .from('orders')
-        .insert({
-          user_id: user?.id,
-          total: total,
-          status: paymentMethod === 'cod' ? 'pending' : 'processing',
-          payment_id: paymentId || null,
-          payment_method: paymentMethod,
-          shipping_address_id: shippingAddressId
-        })
+        .insert(orderData)
         .select()
         .single();
       
       if (orderError) throw orderError;
       
-      // Save each order item
-      const orderItems = cart.map(item => ({
-        order_id: orderData.id,
+      // Prepare order items with correct type
+      const orderItems: Tables<'order_items'>['Insert'][] = cart.map(item => ({
+        order_id: insertedOrder.id,
         product_id: item.product.id,
         quantity: item.quantity,
         price: item.product.price
       }));
       
+      // Insert order items
       const { error: itemsError } = await supabase
         .from('order_items')
         .insert(orderItems);
       
       if (itemsError) throw itemsError;
       
-      setOrderId(orderData.id);
-      return orderData.id;
+      setOrderId(insertedOrder.id);
+      return insertedOrder.id;
     } catch (error) {
       console.error('Error saving order:', error);
       throw error;

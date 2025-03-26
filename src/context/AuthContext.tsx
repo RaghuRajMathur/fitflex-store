@@ -7,7 +7,7 @@ type AuthContextType = {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
-  isAdmin: boolean; // Add isAdmin property
+  isAdmin: boolean; // Ensure this is included
   signIn: (email: string, password: string) => Promise<{
     error: Error | null;
     data: Session | null;
