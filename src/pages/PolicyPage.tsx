@@ -1,10 +1,21 @@
 
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import Layout from "@/components/Layout";
 
 const PolicyPage = () => {
-  const { policy } = useParams<{ policy: string }>();
+  const { type } = useParams<{ type: string }>();
+  const location = useLocation();
+  
+  // Extract policy type from either param or direct path
+  let policyType = type;
+  if (!policyType) {
+    // If accessed directly via /shipping-policy, /return-policy, etc.
+    const path = location.pathname.substring(1); // remove leading slash
+    if (["shipping-policy", "return-policy", "privacy-policy", "terms-of-service"].includes(path)) {
+      policyType = path;
+    }
+  }
   
   const policyContent = {
     "shipping-policy": {
@@ -176,7 +187,7 @@ const PolicyPage = () => {
     }
   };
   
-  const selectedPolicy = policy ? policyContent[policy as keyof typeof policyContent] : null;
+  const selectedPolicy = policyType ? policyContent[policyType as keyof typeof policyContent] : null;
   
   if (!selectedPolicy) {
     return (

@@ -21,6 +21,7 @@ import AdminOrders from "@/pages/AdminOrders";
 import AuthPage from "@/pages/AuthPage";
 import AccountPage from "@/pages/AccountPage";
 import CheckoutPage from "@/pages/CheckoutPage";
+import FAQPage from "@/pages/FAQPage";
 import "./App.css";
 
 function App() {
@@ -39,7 +40,12 @@ function App() {
             <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/faq" element={<FAQPage />} />
             <Route path="/policy/:type" element={<PolicyPage />} />
+            <Route path="/shipping-policy" element={<PolicyPage />} />
+            <Route path="/return-policy" element={<PolicyPage />} />
+            <Route path="/privacy-policy" element={<PolicyPage />} />
+            <Route path="/terms-of-service" element={<PolicyPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/admin" element={<AdminDashboard />} />
