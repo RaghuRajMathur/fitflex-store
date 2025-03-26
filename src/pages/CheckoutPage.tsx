@@ -10,6 +10,8 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import LazyImage from "@/components/LazyImage";
 import { Check } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 // Define Razorpay types
 declare global {
@@ -22,10 +24,12 @@ type CheckoutStep = "shipping" | "payment" | "confirmation";
 
 const CheckoutPage = () => {
   const { cart, getCartTotal, clearCart } = useStore();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("shipping");
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
   const navigate = useNavigate();
   
   // Form state
@@ -116,6 +120,77 @@ const CheckoutPage = () => {
     }
   };
   
+  const saveShippingAddress = async () => {
+    try {
+      // Save shipping address
+      const { data: addressData, error: addressError } = await supabase
+        .from('shipping_addresses')
+        .insert({
+          user_id: user?.id,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone: formData.phone || null,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          zip_code: formData.zipCode
+        })
+        .select()
+        .single();
+      
+      if (addressError) throw addressError;
+      
+      return addressData.id;
+    } catch (error) {
+      console.error('Error saving shipping address:', error);
+      throw error;
+    }
+  };
+  
+  const saveOrder = async (paymentId: string = '', paymentMethod: string) => {
+    try {
+      // First save the shipping address
+      const shippingAddressId = await saveShippingAddress();
+      
+      // Then create the order
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user?.id,
+          total: total,
+          status: paymentMethod === 'cod' ? 'pending' : 'processing',
+          payment_id: paymentId || null,
+          payment_method: paymentMethod,
+          shipping_address_id: shippingAddressId
+        })
+        .select()
+        .single();
+      
+      if (orderError) throw orderError;
+      
+      // Save each order item
+      const orderItems = cart.map(item => ({
+        order_id: orderData.id,
+        product_id: item.product.id,
+        quantity: item.quantity,
+        price: item.product.price
+      }));
+      
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+      
+      if (itemsError) throw itemsError;
+      
+      setOrderId(orderData.id);
+      return orderData.id;
+    } catch (error) {
+      console.error('Error saving order:', error);
+      throw error;
+    }
+  };
+  
   const handleRazorpayPayment = () => {
     if (!razorpayLoaded) {
       toast({
@@ -136,16 +211,30 @@ const CheckoutPage = () => {
       name: 'FitFlex',
       description: 'Purchase from FitFlex store',
       image: 'https://your-logo-url.com/logo.png', // Replace with your logo URL
-      handler: function(response: any) {
-        // Payment successful
-        console.log('Payment successful:', response);
-        // Process order
-        processOrder(response.razorpay_payment_id);
-        
-        toast({
-          title: "Payment Successful",
-          description: "Your payment was processed successfully!",
-        });
+      handler: async function(response: any) {
+        try {
+          // Payment successful
+          console.log('Payment successful:', response);
+          
+          // Save order to database
+          await saveOrder(response.razorpay_payment_id, 'razorpay');
+          
+          // Process order
+          processOrder(response.razorpay_payment_id);
+          
+          toast({
+            title: "Payment Successful",
+            description: "Your payment was processed successfully!",
+          });
+        } catch (error) {
+          console.error('Error processing order:', error);
+          setIsProcessing(false);
+          toast({
+            title: "Order Error",
+            description: "There was an error processing your order. Please try again.",
+            variant: "destructive",
+          });
+        }
       },
       prefill: {
         name: `${formData.firstName} ${formData.lastName}`,
@@ -184,22 +273,34 @@ const CheckoutPage = () => {
     }
   };
   
-  const processOrder = (paymentId: string = '') => {
-    // In a real app, you would save the order to your database here
-    console.log('Processing order with payment ID:', paymentId);
-    
-    // Simulate processing
-    setTimeout(() => {
-      setIsProcessing(false);
-      setCurrentStep("confirmation");
-      clearCart();
-      window.scrollTo(0, 0);
+  const processOrder = async (paymentId: string = '') => {
+    try {
+      // If paying with COD, save the order now
+      if (paymentMethod === 'cod' && !orderId) {
+        await saveOrder('', 'cod');
+      }
       
+      // Simulate processing
+      setTimeout(() => {
+        setIsProcessing(false);
+        setCurrentStep("confirmation");
+        clearCart();
+        window.scrollTo(0, 0);
+        
+        toast({
+          title: "Order Placed",
+          description: "Your order has been placed successfully!",
+        });
+      }, 1000);
+    } catch (error) {
+      console.error('Error processing order:', error);
+      setIsProcessing(false);
       toast({
-        title: "Order Placed",
-        description: "Your order has been placed successfully!",
+        title: "Order Error",
+        description: "There was an error processing your order. Please try again.",
+        variant: "destructive",
       });
-    }, 1000);
+    }
   };
   
   const handlePlaceOrder = (e: React.FormEvent) => {
@@ -223,6 +324,11 @@ const CheckoutPage = () => {
     navigate("/cart");
     return null;
   }
+  
+  // Format currency for display in rupees (₹)
+  const formatCurrency = (amount: number) => {
+    return `₹${amount.toFixed(2)}`;
+  };
   
   return (
     <Layout>
@@ -470,7 +576,7 @@ const CheckoutPage = () => {
                     <div className="flex justify-between">
                       <span className="font-medium">Order Number:</span>
                       <span className="text-muted-foreground">
-                        #{Math.floor(100000 + Math.random() * 900000)}
+                        #{orderId ? orderId.substring(0, 8) : Math.floor(100000 + Math.random() * 900000)}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -485,7 +591,7 @@ const CheckoutPage = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="font-medium">Total:</span>
-                      <span className="text-muted-foreground">${total.toFixed(2)}</span>
+                      <span className="text-muted-foreground">{formatCurrency(total)}</span>
                     </div>
                   </div>
                 </div>
@@ -525,7 +631,7 @@ const CheckoutPage = () => {
                         Qty: {item.quantity}
                       </div>
                       <div className="text-sm font-medium mt-1">
-                        ${(item.product.price * item.quantity).toFixed(2)}
+                        {formatCurrency(item.product.price * item.quantity)}
                       </div>
                     </div>
                   </div>
@@ -538,22 +644,22 @@ const CheckoutPage = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{formatCurrency(subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
                   <span>
-                    {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+                    {shipping === 0 ? "Free" : formatCurrency(shipping)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tax</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>{formatCurrency(tax)}</span>
                 </div>
                 <Separator className="my-3" />
                 <div className="flex justify-between font-medium text-base">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>{formatCurrency(total)}</span>
                 </div>
               </div>
             </div>
