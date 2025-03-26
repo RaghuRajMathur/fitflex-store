@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, Star, StarHalf, Truck, ShieldCheck, RotateCcw, ArrowLeft } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -117,7 +117,7 @@ const ProductPage = () => {
             {/* Price */}
             <div>
               <p className="text-2xl font-semibold">
-                ${product.price.toFixed(2)}
+                {formatCurrency(product.price)}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
                 {product.inStock ? "In Stock" : "Out of Stock"}
@@ -164,7 +164,7 @@ const ProductPage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-6 border-t border-b">
                 <div className="flex items-center">
                   <Truck className="h-5 w-5 mr-3 text-muted-foreground" />
-                  <span className="text-sm">Free shipping over $100</span>
+                  <span className="text-sm">Free shipping over {formatCurrency(10000)}</span>
                 </div>
                 <div className="flex items-center">
                   <ShieldCheck className="h-5 w-5 mr-3 text-muted-foreground" />
@@ -205,14 +205,14 @@ const ProductPage = () => {
               <TabsContent value="shipping" className="pt-4">
                 <div className="space-y-4">
                   <p>
-                    We offer free standard shipping on all orders over $100. Orders under $100 have a flat shipping rate of $8.95.
+                    We offer free standard shipping on all orders over {formatCurrency(10000)}. Orders under {formatCurrency(10000)} have a flat shipping rate of {formatCurrency(895)}.
                   </p>
                   <p>
                     <strong>Delivery times:</strong>
                   </p>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>Standard Shipping: 3-5 business days</li>
-                    <li>Express Shipping: 1-2 business days (additional $12.95)</li>
+                    <li>Express Shipping: 1-2 business days (additional {formatCurrency(1295)})</li>
                   </ul>
                   <p>
                     International shipping is available for select countries. Rates and delivery times vary by location.
