@@ -1,8 +1,9 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { useStore } from "@/context/StoreContext";
+import { useProduct, useRelatedProducts } from "@/hooks/useSupabaseProducts";
 import LazyImage from "@/components/LazyImage";
 import QuantitySelector from "@/components/QuantitySelector";
 import ProductGrid from "@/components/ProductGrid";
@@ -15,15 +16,32 @@ import { cn, formatCurrency } from "@/lib/utils";
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { getProductById, toggleLike, isLiked, addToCart, getProductsByCategory } = useStore();
-  const [quantity, setQuantity] = useState(1);
-  const product = getProductById(id || "");
+  const { toggleLike, isLiked, addToCart } = useStore();
+  const [quantity, setQuantity] = React.useState(1);
+  
+  // Fetch product and related products from Supabase
+  const { data: product, isLoading, error } = useProduct(id || "");
+  const { data: relatedProducts = [] } = useRelatedProducts(
+    product?.category || "", 
+    id || ""
+  );
   
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
   
-  if (!product) {
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="max-container py-20 flex flex-col items-center justify-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-4 text-muted-foreground">Loading product details...</p>
+        </div>
+      </Layout>
+    );
+  }
+  
+  if (error || !product) {
     return (
       <Layout>
         <div className="max-container py-20 text-center">
@@ -40,7 +58,6 @@ const ProductPage = () => {
   }
   
   const liked = isLiked(product.id);
-  const relatedProducts = getProductsByCategory(product.category).filter(p => p.id !== product.id).slice(0, 4);
   
   const handleToggleLike = () => {
     toggleLike(product.id);
