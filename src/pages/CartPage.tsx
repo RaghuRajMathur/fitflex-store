@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { X, ChevronRight, ShoppingCart } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { formatCurrency } from "@/lib/utils";
 
 const CartPage = () => {
   const { cart, removeFromCart, updateQuantity, getCartTotal, clearCart } = useStore();
@@ -40,7 +41,7 @@ const CartPage = () => {
   
   // Calculate subtotal and shipping
   const subtotal = getCartTotal();
-  const shipping = subtotal >= 100 || subtotal === 0 ? 0 : 8.95;
+  const shipping = subtotal >= 10000 || subtotal === 0 ? 0 : 499;
   const total = subtotal + shipping;
   
   return (
@@ -109,7 +110,7 @@ const CartPage = () => {
                       {/* Price */}
                       <div className="col-span-1 sm:col-span-2 text-left sm:text-center">
                         <div className="sm:hidden inline-block text-sm text-muted-foreground mr-2">Price:</div>
-                        <div className="inline-block sm:block">${item.product.price.toFixed(2)}</div>
+                        <div className="inline-block sm:block">{formatCurrency(item.product.price)}</div>
                       </div>
                       
                       {/* Quantity */}
@@ -129,7 +130,7 @@ const CartPage = () => {
                       {/* Total */}
                       <div className="col-span-1 sm:col-span-2 text-left sm:text-center font-medium">
                         <div className="sm:hidden inline-block text-sm text-muted-foreground mr-2">Total:</div>
-                        <div className="inline-block sm:block">${(item.product.price * item.quantity).toFixed(2)}</div>
+                        <div className="inline-block sm:block">{formatCurrency(item.product.price * item.quantity)}</div>
                       </div>
                     </div>
                   ))}
@@ -161,18 +162,18 @@ const CartPage = () => {
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>{formatCurrency(subtotal)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Shipping</span>
                     <span>
-                      {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+                      {shipping === 0 ? "Free" : formatCurrency(shipping)}
                     </span>
                   </div>
                   <Separator className="my-3" />
                   <div className="flex justify-between font-medium text-base">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>{formatCurrency(total)}</span>
                   </div>
                 </div>
                 

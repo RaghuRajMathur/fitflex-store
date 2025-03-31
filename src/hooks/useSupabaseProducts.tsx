@@ -31,9 +31,9 @@ export const useProduct = (id: string) => {
           price: Number(data.price),
           image: data.image_url || "",
           description: data.description || "",
-          inStock: data.in_stock,
+          inStock: data.stock > 0, // Changed from in_stock to use stock field
           featured: data.featured || false,
-          rating: data.rating,
+          rating: data.rating || 0,
           reviews: data.reviews || 0,
           specs: data.specs || {}
         };
@@ -72,9 +72,9 @@ export const useRelatedProducts = (categoryName: string, currentProductId: strin
           price: Number(item.price),
           image: item.image_url || "",
           description: item.description || "",
-          inStock: item.in_stock,
+          inStock: item.stock > 0, // Changed from in_stock to use stock field
           featured: item.featured || false,
-          rating: item.rating,
+          rating: item.rating || 0,
           reviews: item.reviews || 0
         }));
 
@@ -117,9 +117,9 @@ export const useSeedProducts = () => {
               price: product.price,
               image_url: product.image,
               description: product.description,
-              in_stock: product.inStock,
+              stock: product.inStock ? 10 : 0, // Changed in_stock to stock with a quantity
               featured: product.featured || false,
-              rating: product.rating,
+              rating: product.rating || 0,
               reviews: product.reviews || 0,
               specs: product.specs || {}
             });
