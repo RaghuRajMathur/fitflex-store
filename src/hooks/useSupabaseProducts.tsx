@@ -14,10 +14,6 @@ type SupabaseProduct = {
   image_url?: string;
   description?: string;
   stock: number;
-  featured?: boolean;
-  rating?: number;
-  reviews?: number;
-  specs?: Record<string, string>;
   created_at?: string;
   updated_at?: string;
 };
@@ -31,10 +27,10 @@ const mapSupabaseProductToAppProduct = (data: SupabaseProduct): Product => ({
   image: data.image_url || "",
   description: data.description || "",
   inStock: (data.stock || 0) > 0,
-  featured: data.featured || false,
-  rating: data.rating || 0,
-  reviews: data.reviews || 0,
-  specs: data.specs || {}
+  featured: false, // Default value since column doesn't exist
+  rating: 0, // Default value since column doesn't exist
+  reviews: 0, // Default value since column doesn't exist
+  specs: {} // Default value since column doesn't exist
 });
 
 // Hook to fetch a single product from Supabase
@@ -124,11 +120,9 @@ export const useSeedProducts = () => {
               price: product.price,
               image_url: product.image,
               description: product.description,
-              stock: product.inStock ? 10 : 0,
-              featured: product.featured || false,
-              rating: product.rating || 0,
-              reviews: product.reviews || 0,
-              specs: product.specs || {}
+              stock: product.inStock ? 10 : 0
+              // Removed the featured, rating, reviews, and specs fields
+              // because they don't exist in the database schema
             });
             
           if (error) throw error;
