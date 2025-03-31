@@ -5,6 +5,38 @@ import { supabase } from "@/integrations/supabase/client";
 import { Product } from "@/context/StoreContext";
 import { toast } from "sonner";
 
+// Type for Supabase product data
+type SupabaseProduct = {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  image_url?: string;
+  description?: string;
+  stock: number;
+  featured?: boolean;
+  rating?: number;
+  reviews?: number;
+  specs?: Record<string, string>;
+  created_at?: string;
+  updated_at?: string;
+};
+
+// Helper function to convert Supabase product to app Product type
+const mapSupabaseProductToAppProduct = (data: SupabaseProduct): Product => ({
+  id: data.id,
+  name: data.name,
+  category: data.category,
+  price: Number(data.price),
+  image: data.image_url || "",
+  description: data.description || "",
+  inStock: (data.stock || 0) > 0,
+  featured: data.featured || false,
+  rating: data.rating || 0,
+  reviews: data.reviews || 0,
+  specs: data.specs || {}
+});
+
 // Hook to fetch a single product from Supabase
 export const useProduct = (id: string) => {
   return useQuery({
@@ -24,21 +56,7 @@ export const useProduct = (id: string) => {
         }
 
         // Transform Supabase product to match our application's Product type
-        const product: Product = {
-          id: data.id,
-          name: data.name,
-          category: data.category,
-          price: Number(data.price),
-          image: data.image_url || "",
-          description: data.description || "",
-          inStock: data.stock > 0, // Changed from in_stock to use stock field
-          featured: data.featured || false,
-          rating: data.rating || 0,
-          reviews: data.reviews || 0,
-          specs: data.specs || {}
-        };
-
-        return product;
+        return mapSupabaseProductToAppProduct(data as SupabaseProduct);
       } catch (error: any) {
         console.error("Error fetching product:", error);
         toast.error(error.message || "Error fetching product");
@@ -65,20 +83,9 @@ export const useRelatedProducts = (categoryName: string, currentProductId: strin
         if (error) throw error;
 
         // Transform Supabase products to match our application's Product type
-        const products: Product[] = (data || []).map(item => ({
-          id: item.id,
-          name: item.name,
-          category: item.category,
-          price: Number(item.price),
-          image: item.image_url || "",
-          description: item.description || "",
-          inStock: item.stock > 0, // Changed from in_stock to use stock field
-          featured: item.featured || false,
-          rating: item.rating || 0,
-          reviews: item.reviews || 0
-        }));
-
-        return products;
+        return (data || []).map((item: SupabaseProduct) => 
+          mapSupabaseProductToAppProduct(item)
+        );
       } catch (error: any) {
         console.error("Error fetching related products:", error);
         toast.error("Error fetching related products");
@@ -117,7 +124,7 @@ export const useSeedProducts = () => {
               price: product.price,
               image_url: product.image,
               description: product.description,
-              stock: product.inStock ? 10 : 0, // Changed in_stock to stock with a quantity
+              stock: product.inStock ? 10 : 0,
               featured: product.featured || false,
               rating: product.rating || 0,
               reviews: product.reviews || 0,
