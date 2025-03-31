@@ -8,7 +8,7 @@ import QuantitySelector from "@/components/QuantitySelector";
 import ProductGrid from "@/components/ProductGrid";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Star, StarHalf, Truck, ShieldCheck, RotateCcw, ArrowLeft } from "lucide-react";
+import { Heart, Star, Truck, ShieldCheck, RotateCcw, ArrowLeft } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -73,32 +73,32 @@ const ProductPage = () => {
         {/* Product Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           {/* Product Image */}
-          <div className="aspect-square md:sticky md:top-24">
+          <div className="aspect-square md:sticky md:top-24 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
             <LazyImage
               src={product.image}
               alt={product.name}
-              className="rounded-xl overflow-hidden h-full"
+              className="rounded-xl overflow-hidden h-full hover:scale-105 transition-transform duration-500"
             />
           </div>
           
           {/* Product Info */}
-          <div className="space-y-6">
+          <div className="space-y-6 bg-white/50 backdrop-blur-sm p-6 rounded-xl border border-gray-100 shadow-sm">
             <div>
-              <Badge variant="secondary" className="capitalize mb-3">
+              <Badge variant="secondary" className="capitalize mb-3 font-medium">
                 {product.category}
               </Badge>
-              <h1 className="text-2xl md:text-3xl font-display font-bold">
+              <h1 className="text-3xl md:text-4xl font-display font-bold text-gray-900">
                 {product.name}
               </h1>
               
               {/* Rating */}
               {product.rating && (
-                <div className="flex items-center space-x-1 mt-2">
+                <div className="flex items-center space-x-1 mt-3">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
                       className={cn(
-                        "h-4 w-4",
+                        "h-5 w-5",
                         i < Math.floor(product.rating)
                           ? "text-yellow-400 fill-yellow-400"
                           : i < Math.ceil(product.rating) 
@@ -107,7 +107,7 @@ const ProductPage = () => {
                       )}
                     />
                   ))}
-                  <span className="text-sm text-muted-foreground ml-1">
+                  <span className="text-sm font-medium text-muted-foreground ml-2">
                     ({product.reviews} reviews)
                   </span>
                 </div>
@@ -115,21 +115,24 @@ const ProductPage = () => {
             </div>
             
             {/* Price */}
-            <div>
-              <p className="text-2xl font-semibold">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-3xl font-semibold text-gray-900">
                 {formatCurrency(product.price)}
               </p>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className={cn(
+                "text-sm mt-2 font-medium",
+                product.inStock ? "text-green-600" : "text-red-500"
+              )}>
                 {product.inStock ? "In Stock" : "Out of Stock"}
               </p>
             </div>
             
             {/* Description */}
-            <p className="text-muted-foreground">{product.description}</p>
+            <p className="text-muted-foreground text-lg leading-relaxed">{product.description}</p>
             
             {/* Add to Cart */}
-            <div className="pt-2">
-              <div className="flex items-center space-x-4 mb-6">
+            <div className="pt-4">
+              <div className="flex items-center space-x-4 mb-8">
                 <QuantitySelector
                   quantity={quantity}
                   onChange={handleQuantityChange}
@@ -138,8 +141,9 @@ const ProductPage = () => {
                 
                 <Button
                   onClick={handleAddToCart}
-                  className="flex-1"
+                  className="flex-1 h-12 text-base"
                   disabled={!product.inStock}
+                  size="lg"
                 >
                   {product.inStock ? "Add to Cart" : "Out of Stock"}
                 </Button>
@@ -148,7 +152,7 @@ const ProductPage = () => {
                   variant="outline"
                   size="icon"
                   className={cn(
-                    "h-10 w-10 rounded-full",
+                    "h-12 w-12 rounded-full",
                     liked && "text-primary border-primary"
                   )}
                   onClick={handleToggleLike}
@@ -179,18 +183,18 @@ const ProductPage = () => {
             
             {/* Product Details Tabs */}
             <Tabs defaultValue="specifications" className="mt-8">
-              <TabsList className="w-full grid grid-cols-3">
+              <TabsList className="w-full grid grid-cols-3 mb-2">
                 <TabsTrigger value="specifications">Specifications</TabsTrigger>
                 <TabsTrigger value="shipping">Shipping</TabsTrigger>
                 <TabsTrigger value="warranty">Warranty</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="specifications" className="pt-4">
+              <TabsContent value="specifications" className="pt-4 bg-white/70 p-6 rounded-lg border">
                 {product.specs ? (
                   <div className="space-y-2">
                     {Object.entries(product.specs).map(([key, value]) => (
-                      <div key={key} className="flex py-2 border-b last:border-0">
-                        <span className="w-1/3 font-medium">{key}</span>
+                      <div key={key} className="flex py-3 border-b last:border-0">
+                        <span className="w-1/3 font-medium text-gray-700">{key}</span>
                         <span className="w-2/3 text-muted-foreground">{value}</span>
                       </div>
                     ))}
@@ -202,7 +206,7 @@ const ProductPage = () => {
                 )}
               </TabsContent>
               
-              <TabsContent value="shipping" className="pt-4">
+              <TabsContent value="shipping" className="pt-4 bg-white/70 p-6 rounded-lg border">
                 <div className="space-y-4">
                   <p>
                     We offer free standard shipping on all orders over {formatCurrency(10000)}. Orders under {formatCurrency(10000)} have a flat shipping rate of {formatCurrency(895)}.
@@ -210,7 +214,7 @@ const ProductPage = () => {
                   <p>
                     <strong>Delivery times:</strong>
                   </p>
-                  <ul className="list-disc pl-5 space-y-1">
+                  <ul className="list-disc pl-5 space-y-2">
                     <li>Standard Shipping: 3-5 business days</li>
                     <li>Express Shipping: 1-2 business days (additional {formatCurrency(1295)})</li>
                   </ul>
@@ -220,7 +224,7 @@ const ProductPage = () => {
                 </div>
               </TabsContent>
               
-              <TabsContent value="warranty" className="pt-4">
+              <TabsContent value="warranty" className="pt-4 bg-white/70 p-6 rounded-lg border">
                 <div className="space-y-4">
                   <p>
                     All FlexFitness products come with our industry-leading 10-year warranty against manufacturing defects.
@@ -228,7 +232,7 @@ const ProductPage = () => {
                   <p>
                     Our warranty covers:
                   </p>
-                  <ul className="list-disc pl-5 space-y-1">
+                  <ul className="list-disc pl-5 space-y-2">
                     <li>Structural failures due to materials or workmanship</li>
                     <li>Welds and moving parts</li>
                     <li>Surface finish against peeling or cracking</li>
@@ -244,8 +248,8 @@ const ProductPage = () => {
         
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <section className="mt-20">
-            <h2 className="text-2xl font-display font-bold mb-8">
+          <section className="mt-24">
+            <h2 className="text-2xl font-display font-bold mb-8 text-center">
               You might also like
             </h2>
             <ProductGrid products={relatedProducts} variant="default" columns={4} />
