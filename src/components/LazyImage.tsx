@@ -12,10 +12,12 @@ interface LazyImageProps {
 const LazyImage = ({ src, alt, className, style }: LazyImageProps) => {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const [imageSrc, setImageSrc] = useState(src);
 
   useEffect(() => {
     setLoaded(false);
     setError(false);
+    setImageSrc(src);
   }, [src]);
 
   const handleLoad = () => {
@@ -24,15 +26,17 @@ const LazyImage = ({ src, alt, className, style }: LazyImageProps) => {
 
   const handleError = () => {
     setError(true);
+    // When an image fails to load, use a fallback image
+    setImageSrc("https://images.unsplash.com/photo-1561214078-f3247647fc5e?w=800&auto=format&fit=crop");
   };
 
   return (
     <div className={cn("relative overflow-hidden", className)} style={style}>
-      {!loaded && !error && (
+      {!loaded && (
         <div className="absolute inset-0 bg-muted animate-pulse" />
       )}
       <img
-        src={error ? "https://images.unsplash.com/photo-1561214078-f3247647fc5e?w=800&auto=format&fit=crop" : src}
+        src={imageSrc}
         alt={alt}
         onLoad={handleLoad}
         onError={handleError}

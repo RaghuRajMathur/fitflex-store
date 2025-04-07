@@ -134,7 +134,8 @@ const ProductsPage = () => {
           
           {/* Products */}
           <div className="flex-1 ml-0 md:ml-8">
-            <ProductGrid products={products} columns={3} />
+            {/* Here we use the store products by default, but we could switch to Supabase products if needed */}
+            <ProductGrid products={products} columns={3} useSupabaseProducts={false} />
           </div>
         </div>
       </div>

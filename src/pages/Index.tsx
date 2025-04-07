@@ -43,6 +43,7 @@ const Index = () => {
             </Link>
           </div>
 
+          {/* Use store products instead of Supabase to avoid errors */}
           <ProductGrid products={featuredProducts} variant="featured" />
         </div>
       </section>

@@ -10,6 +10,9 @@ interface ProductImageProps {
 const ProductImage: React.FC<ProductImageProps> = ({ src, alt }) => {
   const [isZoomed, setIsZoomed] = useState(false);
 
+  // If no image src is provided, use a fallback image
+  const imageSrc = src || "https://images.unsplash.com/photo-1561214078-f3247647fc5e?w=800&auto=format&fit=crop";
+
   return (
     <div 
       className="aspect-square md:sticky md:top-24 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
@@ -18,7 +21,7 @@ const ProductImage: React.FC<ProductImageProps> = ({ src, alt }) => {
     >
       <div className="relative w-full h-full overflow-hidden">
         <LazyImage
-          src={src}
+          src={imageSrc}
           alt={alt}
           className={`rounded-xl overflow-hidden h-full w-full object-cover transition-transform duration-500 ${isZoomed ? 'scale-110' : 'scale-100'}`}
         />

@@ -18,20 +18,64 @@ type SupabaseProduct = {
   updated_at?: string;
 };
 
+// Fallback images by category
+const fallbackImages: Record<string, string> = {
+  strength: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800&auto=format&fit=crop",
+  accessories: "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=800&auto=format&fit=crop",
+  electronics: "https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=800&auto=format&fit=crop",
+  recovery: "https://images.unsplash.com/photo-1620188467120-5042c5bf5e70?w=800&auto=format&fit=crop",
+  nutrition: "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=800&auto=format&fit=crop",
+  // Default fallback image if category doesn't match
+  default: "https://images.unsplash.com/photo-1561214078-f3247647fc5e?w=800&auto=format&fit=crop"
+};
+
 // Helper function to convert Supabase product to app Product type
-const mapSupabaseProductToAppProduct = (data: SupabaseProduct): Product => ({
-  id: data.id,
-  name: data.name,
-  category: data.category,
-  price: Number(data.price),
-  image: data.image_url || "",
-  description: data.description || "",
-  inStock: (data.stock || 0) > 0,
-  featured: false, // Default value since column doesn't exist
-  rating: 0, // Default value since column doesn't exist
-  reviews: 0, // Default value since column doesn't exist
-  specs: {} // Default value since column doesn't exist
-});
+const mapSupabaseProductToAppProduct = (data: SupabaseProduct): Product => {
+  // Ensure every product has an image
+  const image = data.image_url || fallbackImages[data.category] || fallbackImages.default;
+  
+  return {
+    id: data.id,
+    name: data.name,
+    category: data.category,
+    price: Number(data.price),
+    image: image,
+    description: data.description || "",
+    inStock: (data.stock || 0) > 0,
+    // Default values for non-existent columns
+    featured: false,
+    rating: 0,
+    reviews: 0,
+    specs: {}
+  };
+};
+
+// Hook to fetch all products from Supabase
+export const useAllProducts = () => {
+  return useQuery({
+    queryKey: ["allProducts"],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        
+        // Transform Supabase products to match our application's Product type
+        return (data || []).map((item: SupabaseProduct) => 
+          mapSupabaseProductToAppProduct(item)
+        );
+      } catch (error: any) {
+        console.error("Error fetching all products:", error);
+        return [];
+      }
+    },
+    retry: 1,
+    refetchOnWindowFocus: false
+  });
+};
 
 // Hook to fetch a single product from Supabase
 export const useProduct = (id: string) => {
@@ -55,13 +99,12 @@ export const useProduct = (id: string) => {
         return mapSupabaseProductToAppProduct(data as SupabaseProduct);
       } catch (error: any) {
         console.error("Error fetching product:", error);
-        // Don't show toast to prevent error pop-ups
         return null;
       }
     },
     enabled: !!id,
-    retry: false, // Prevent retries that could cause multiple error toasts
-    refetchOnWindowFocus: false // Prevent refetching that could cause multiple error toasts
+    retry: false,
+    refetchOnWindowFocus: false
   });
 };
 
@@ -86,13 +129,12 @@ export const useRelatedProducts = (categoryName: string, currentProductId: strin
         );
       } catch (error: any) {
         console.error("Error fetching related products:", error);
-        // Don't show toast to prevent error pop-ups
         return [];
       }
     },
     enabled: !!categoryName && !!currentProductId,
-    retry: false, // Prevent retries that could cause multiple error toasts
-    refetchOnWindowFocus: false // Prevent refetching that could cause multiple error toasts
+    retry: false,
+    refetchOnWindowFocus: false
   });
 };
 
