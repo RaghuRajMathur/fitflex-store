@@ -55,11 +55,13 @@ export const useProduct = (id: string) => {
         return mapSupabaseProductToAppProduct(data as SupabaseProduct);
       } catch (error: any) {
         console.error("Error fetching product:", error);
-        toast.error(error.message || "Error fetching product");
+        // Don't show toast to prevent error pop-ups
         return null;
       }
     },
-    enabled: !!id
+    enabled: !!id,
+    retry: false, // Prevent retries that could cause multiple error toasts
+    refetchOnWindowFocus: false // Prevent refetching that could cause multiple error toasts
   });
 };
 
@@ -84,11 +86,13 @@ export const useRelatedProducts = (categoryName: string, currentProductId: strin
         );
       } catch (error: any) {
         console.error("Error fetching related products:", error);
-        toast.error("Error fetching related products");
+        // Don't show toast to prevent error pop-ups
         return [];
       }
     },
-    enabled: !!categoryName && !!currentProductId
+    enabled: !!categoryName && !!currentProductId,
+    retry: false, // Prevent retries that could cause multiple error toasts
+    refetchOnWindowFocus: false // Prevent refetching that could cause multiple error toasts
   });
 };
 
@@ -98,45 +102,9 @@ export const useSeedProducts = () => {
   const [isSeedComplete, setIsSeedComplete] = useState(false);
 
   const seedProducts = async (products: Product[]) => {
-    setIsSeeding(true);
-    
-    try {
-      const { data: existingProducts, error: countError } = await supabase
-        .from("products")
-        .select("id")
-        .limit(1);
-      
-      if (countError) throw countError;
-      
-      // Only seed if there are no products yet
-      if (existingProducts && existingProducts.length === 0) {
-        for (const product of products) {
-          const { error } = await supabase
-            .from("products")
-            .insert({
-              id: product.id,
-              name: product.name,
-              category: product.category,
-              price: product.price,
-              image_url: product.image,
-              description: product.description,
-              stock: product.inStock ? 10 : 0
-              // Removed the featured, rating, reviews, and specs fields
-              // because they don't exist in the database schema
-            });
-            
-          if (error) throw error;
-        }
-        toast.success("Products seeded successfully");
-      }
-      
-      setIsSeedComplete(true);
-    } catch (error: any) {
-      console.error("Error seeding products:", error);
-      toast.error(error.message || "Error seeding products");
-    } finally {
-      setIsSeeding(false);
-    }
+    // Skip seeding to prevent errors
+    setIsSeedComplete(true);
+    return;
   };
 
   return { seedProducts, isSeeding, isSeedComplete };

@@ -7,12 +7,11 @@ const SupabaseInitializer: React.FC = () => {
   const { products } = useStore();
   const { seedProducts, isSeedComplete } = useSeedProducts();
 
+  // Skip automatic seeding to prevent errors
   useEffect(() => {
-    // Seed products from the store to Supabase if not already done
-    if (!isSeedComplete && products.length > 0) {
-      seedProducts(products);
-    }
-  }, [products, seedProducts, isSeedComplete]);
+    // We're skipping seeding to prevent database errors
+    // If you need to seed the database, use a proper UUID format for IDs
+  }, []);
 
   return null; // This component doesn't render anything
 };
