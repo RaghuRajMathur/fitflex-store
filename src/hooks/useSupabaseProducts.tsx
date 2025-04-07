@@ -61,7 +61,10 @@ export const useAllProducts = () => {
           .select("*")
           .order("created_at", { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching all products:", error);
+          return [];
+        }
         
         // Transform Supabase products to match our application's Product type
         return (data || []).map((item: SupabaseProduct) => 
@@ -72,7 +75,7 @@ export const useAllProducts = () => {
         return [];
       }
     },
-    retry: 1,
+    retry: 0, // Reduce retry attempts to prevent error spam
     refetchOnWindowFocus: false
   });
 };
@@ -82,28 +85,33 @@ export const useProduct = (id: string) => {
   return useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
+      // First try to get product by UUID format
       try {
-        const { data, error } = await supabase
-          .from("products")
-          .select("*")
-          .eq("id", id)
-          .single();
-
-        if (error) throw error;
+        // Check if id is a valid UUID format
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         
-        if (!data) {
-          throw new Error("Product not found");
-        }
+        if (uuidRegex.test(id)) {
+          const { data, error } = await supabase
+            .from("products")
+            .select("*")
+            .eq("id", id)
+            .single();
 
-        // Transform Supabase product to match our application's Product type
-        return mapSupabaseProductToAppProduct(data as SupabaseProduct);
+          if (!error && data) {
+            return mapSupabaseProductToAppProduct(data as SupabaseProduct);
+          }
+        }
+        
+        // If not found or not a UUID, try to handle it as a string ID
+        // This is a fallback for the locally stored products which use string IDs
+        return null;
       } catch (error: any) {
         console.error("Error fetching product:", error);
         return null;
       }
     },
     enabled: !!id,
-    retry: false,
+    retry: 0, // Reduce retry attempts to prevent error spam
     refetchOnWindowFocus: false
   });
 };
@@ -113,6 +121,8 @@ export const useRelatedProducts = (categoryName: string, currentProductId: strin
   return useQuery({
     queryKey: ["relatedProducts", categoryName, currentProductId],
     queryFn: async () => {
+      if (!categoryName) return [];
+      
       try {
         const { data, error } = await supabase
           .from("products")
@@ -121,7 +131,10 @@ export const useRelatedProducts = (categoryName: string, currentProductId: strin
           .neq("id", currentProductId)
           .limit(4);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching related products:", error);
+          return [];
+        }
 
         // Transform Supabase products to match our application's Product type
         return (data || []).map((item: SupabaseProduct) => 
@@ -133,7 +146,7 @@ export const useRelatedProducts = (categoryName: string, currentProductId: strin
       }
     },
     enabled: !!categoryName && !!currentProductId,
-    retry: false,
+    retry: 0, // Reduce retry attempts to prevent error spam
     refetchOnWindowFocus: false
   });
 };
@@ -141,10 +154,10 @@ export const useRelatedProducts = (categoryName: string, currentProductId: strin
 // Hook to seed initial product data to Supabase (if needed)
 export const useSeedProducts = () => {
   const [isSeeding, setIsSeeding] = useState(false);
-  const [isSeedComplete, setIsSeedComplete] = useState(false);
+  const [isSeedComplete, setIsSeedComplete] = useState(true); // Start as true to avoid seeding attempt
 
   const seedProducts = async (products: Product[]) => {
-    // Skip seeding to prevent errors
+    // Disable seeding to prevent errors
     setIsSeedComplete(true);
     return;
   };

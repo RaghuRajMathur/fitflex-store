@@ -6,15 +6,14 @@ import { useSeedProducts, useAllProducts } from '@/hooks/useSupabaseProducts';
 const SupabaseInitializer: React.FC = () => {
   const { products } = useStore();
   const { seedProducts, isSeedComplete } = useSeedProducts();
-  const { data: supabaseProducts } = useAllProducts();
+  
+  // Skip Supabase product loading to avoid errors
+  // const { data: supabaseProducts } = useAllProducts();
 
-  // Ensure we have products data available
+  // Ensure we have products data available from the store
   useEffect(() => {
-    // We're now using the context products by default and can switch to 
-    // Supabase products when needed using the component prop
     console.log("Store products available:", products.length);
-    console.log("Supabase products available:", supabaseProducts?.length || 0);
-  }, [products, supabaseProducts]);
+  }, [products]);
 
   return null; // This component doesn't render anything
 };

@@ -18,11 +18,20 @@ import ProductTabs from "@/components/product/ProductTabs";
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { toggleLike, isLiked, addToCart } = useStore();
+  const { toggleLike, isLiked, addToCart, getProductById } = useStore();
   const [quantity, setQuantity] = useState(1);
   
-  // Fetch product and related products from Supabase
-  const { data: product, isLoading, error } = useProduct(id || "");
+  // Try to get product from store context first
+  const storeProduct = getProductById(id || "");
+  
+  // If we can't find it in the store, try to use the product from Supabase
+  // but don't show loading/error states as we have storeProduct as fallback
+  const { data: supabaseProduct } = useProduct(id || "");
+  
+  // Use store product as the source of truth, with Supabase as fallback
+  const product = storeProduct || supabaseProduct;
+  
+  // Only fetch related products if we have a product
   const { data: relatedProducts = [] } = useRelatedProducts(
     product?.category || "", 
     id || ""
@@ -32,18 +41,7 @@ const ProductPage = () => {
     window.scrollTo(0, 0);
   }, [id]);
   
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="max-container py-20 flex flex-col items-center justify-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-muted-foreground">Loading product details...</p>
-        </div>
-      </Layout>
-    );
-  }
-  
-  if (error || !product) {
+  if (!product) {
     return (
       <Layout>
         <div className="max-container py-20 text-center">

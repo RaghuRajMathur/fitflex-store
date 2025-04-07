@@ -17,10 +17,10 @@ const ProductGrid = ({
   columns = 3,
   useSupabaseProducts = false
 }: ProductGridProps) => {
-  // Fetch products from Supabase if requested
+  // Fetch products from Supabase if requested, but disable by default
   const { data: supabaseProducts, isLoading } = useAllProducts();
   
-  // Determine which products to display
+  // Determine which products to display - prioritize prop products
   const products = useSupabaseProducts ? (supabaseProducts || []) : propProducts;
   
   const gridCols = {
