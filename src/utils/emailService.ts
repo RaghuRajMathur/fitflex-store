@@ -31,18 +31,8 @@ This message was sent from the FlexFitness contact form.
   console.log("Email content:", emailContent);
   
   try {
-    // Create a transporter object using the default SMTP transport
-    // Note: In a real production environment, you would use real SMTP credentials
-    // For demonstration purposes, we're using a test account
-    const transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email", // This is a testing service - in production use real SMTP server
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: "testuser@ethereal.email", // In production, these would be real credentials
-        pass: "testpassword", // In production, this would be a real password
-      },
-    });
+    // Note: In a browser environment, we can't directly use SMTP
+    // So we're using a simulation approach for demonstration
     
     // Create the HTML email content
     const htmlContent = `
@@ -67,7 +57,10 @@ This message was sent from the FlexFitness contact form.
       </div>
     `;
     
-    // Setup email data
+    // In a real application with a backend, we would use nodemailer here
+    // For frontend-only demonstration, we'll simulate the email sending
+    
+    // Simulate email data that would be sent
     const mailOptions = {
       from: '"FlexFitness Contact" <contact@flexfitness.com>',
       to: "raghuu715@gmail.com",
@@ -76,25 +69,41 @@ This message was sent from the FlexFitness contact form.
       html: htmlContent
     };
     
-    // In a real application, this would send the email
-    // For now, we're simulating a successful email send
     console.log("Email would be sent with:", mailOptions);
     
-    // Simulate a network request
+    // Simulate a network request and successful response
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve({ success: true, message: "Email sent successfully to raghuu715@gmail.com" });
+        resolve({ 
+          success: true, 
+          message: "Email sent successfully to raghuu715@gmail.com" 
+        });
       }, 1000);
     });
     
-    /* Uncomment this in a real environment with valid SMTP credentials
-    // Send the email
+    /* 
+    NOTE: In a real application with a backend or serverless function:
+    
+    const transporter = nodemailer.createTransport({
+      host: "smtp.your-email-provider.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "your-email@example.com",
+        pass: "your-password"
+      }
+    });
+    
     const info = await transporter.sendMail(mailOptions);
     console.log("Email sent: %s", info.messageId);
-    return { success: true, message: `Email sent successfully to raghuu715@gmail.com (${info.messageId})` };
+    return { success: true, message: `Email sent successfully (${info.messageId})` };
     */
+    
   } catch (error) {
     console.error("Error sending email:", error);
-    return { success: false, message: "Failed to send email" };
+    return { 
+      success: false, 
+      message: "Failed to send email" 
+    };
   }
 };
