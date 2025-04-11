@@ -1,10 +1,9 @@
-
 import React, { useState } from "react";
 import { useStore } from "@/context/StoreContext";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
-import { FilterIcon, X, ChevronDown, ChevronUp, IndianRupee } from "lucide-react";
+import { FilterIcon, X, ChevronDown, ChevronUp, IndianRupee, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatIndianRupees } from "@/utils/format";
 
@@ -17,7 +16,6 @@ interface FilterSidebarProps {
 const FilterSidebar = ({ isOpen, onClose, isMobile = false }: FilterSidebarProps) => {
   const { applyFilters, resetFilters, filters } = useStore();
   
-  // Local state for filters
   const [localFilters, setLocalFilters] = useState({
     category: filters.category,
     minPrice: filters.minPrice || 0,
@@ -25,7 +23,6 @@ const FilterSidebar = ({ isOpen, onClose, isMobile = false }: FilterSidebarProps
     inStock: filters.inStock
   });
   
-  // State for accordion sections
   const [openSections, setOpenSections] = useState({
     categories: true,
     price: true,
@@ -96,7 +93,6 @@ const FilterSidebar = ({ isOpen, onClose, isMobile = false }: FilterSidebarProps
         isMobile && (isOpen ? "translate-x-0" : "-translate-x-full")
       )}
     >
-      {/* Header */}
       <div className="flex items-center justify-between border-b p-4">
         <h3 className="font-medium flex items-center">
           <FilterIcon className="mr-2 h-4 w-4" />
@@ -110,9 +106,7 @@ const FilterSidebar = ({ isOpen, onClose, isMobile = false }: FilterSidebarProps
         )}
       </div>
       
-      {/* Filter Content */}
       <div className="flex-1 overflow-y-auto p-4">
-        {/* Categories */}
         <div className="mb-6">
           <button
             onClick={() => toggleSection("categories")}
@@ -147,7 +141,6 @@ const FilterSidebar = ({ isOpen, onClose, isMobile = false }: FilterSidebarProps
           )}
         </div>
         
-        {/* Price Range */}
         <div className="mb-6">
           <button
             onClick={() => toggleSection("price")}
@@ -162,7 +155,7 @@ const FilterSidebar = ({ isOpen, onClose, isMobile = false }: FilterSidebarProps
           </button>
           
           {openSections.price && (
-            <div className="space-y-4 mt-4 px-1">
+            <div className="space-y-4 mt-4 px-1 relative">
               <div className="flex justify-between items-center mb-2">
                 <span className="flex items-center text-sm">
                   <IndianRupee className="h-3 w-3 mr-1" />
@@ -173,13 +166,20 @@ const FilterSidebar = ({ isOpen, onClose, isMobile = false }: FilterSidebarProps
                   {localFilters.maxPrice}
                 </span>
               </div>
-              <Slider
-                value={[localFilters.minPrice || 0, localFilters.maxPrice || 25000]}
-                max={25000}
-                step={1000}
-                onValueChange={handlePriceChange}
-                className="my-6"
-              />
+              <div className="relative">
+                <Slider
+                  value={[localFilters.minPrice || 0, localFilters.maxPrice || 25000]}
+                  max={25000}
+                  step={1000}
+                  onValueChange={handlePriceChange}
+                  className="my-6"
+                />
+                <Circle 
+                  className="absolute top-1/2 right-0 transform -translate-y-1/2 -translate-x-1/2 text-primary" 
+                  size={20} 
+                  fill="currentColor" 
+                />
+              </div>
               <div className="bg-muted/30 rounded-md p-3 text-sm">
                 <p className="font-medium mb-1">Selected Range:</p>
                 <p className="flex items-center justify-center text-primary font-semibold">
@@ -190,7 +190,6 @@ const FilterSidebar = ({ isOpen, onClose, isMobile = false }: FilterSidebarProps
           )}
         </div>
         
-        {/* Availability */}
         <div className="mb-6">
           <button
             onClick={() => toggleSection("availability")}
@@ -224,7 +223,6 @@ const FilterSidebar = ({ isOpen, onClose, isMobile = false }: FilterSidebarProps
         </div>
       </div>
       
-      {/* Filter Actions */}
       <div className="border-t p-4 space-y-2">
         <Button onClick={handleApplyFilters} className="w-full">
           Apply Filters
