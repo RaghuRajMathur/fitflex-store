@@ -42,15 +42,19 @@ const ContactPage = () => {
     
     try {
       // Send the email using our service
-      await sendContactEmail(formData);
+      const response = await sendContactEmail(formData);
       
-      toast.success("Message sent successfully! We'll get back to you soon.");
-      setFormData({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
-      });
+      if ('success' in response && response.success) {
+        toast.success("Message sent successfully! We'll get back to you soon.");
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        throw new Error('Failed to send message');
+      }
     } catch (error) {
       toast.error("Failed to send message. Please try again later.");
       console.error("Error sending email:", error);
