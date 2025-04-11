@@ -1,14 +1,13 @@
 
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
-import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Mail, Phone } from "lucide-react";
 import { sendContactEmail } from "@/utils/emailService";
+import { toast } from "sonner";
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -17,35 +16,27 @@ const ContactPage = () => {
     subject: "",
     message: "",
   });
-  
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
-  
-  const handleSelectChange = (value: string) => {
-    setFormData(prev => ({ ...prev, subject: value }));
-  };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    // Simple validation
-    if (!formData.name || !formData.email || !formData.message) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-    
     setIsSubmitting(true);
-    
+
     try {
-      // Send the email using our service
-      const response = await sendContactEmail(formData);
+      const result = await sendContactEmail(formData);
       
-      if (response.success) {
-        toast.success("Message sent successfully! We'll get back to you soon.");
+      if (result.success) {
+        toast.success(result.message || "Message sent successfully!");
         setFormData({
           name: "",
           email: "",
@@ -53,163 +44,120 @@ const ContactPage = () => {
           message: "",
         });
       } else {
-        throw new Error('Failed to send message');
+        toast.error(result.message || "Failed to send message. Please try again.");
       }
     } catch (error) {
-      toast.error("Failed to send message. Please try again later.");
-      console.error("Error sending email:", error);
+      toast.error("An error occurred. Please try again later.");
+      console.error("Contact form submission error:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <Layout>
-      {/* Hero Section */}
-      <div className="bg-primary/5 py-16">
-        <div className="max-container text-center">
-          <h1 className="text-4xl font-display font-bold tracking-tight mb-4">
-            Contact Us
-          </h1>
+      <div className="max-container py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-bold mb-4">Contact Us</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Have questions about our products or services? We're here to help!
-            Fill out the form below or use our contact information to get in touch.
+            Have questions about our products or services? Get in touch with our
+            team and we'll be happy to assist you.
           </p>
         </div>
-      </div>
-      
-      {/* Contact Content */}
-      <div className="max-container py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
           {/* Contact Information */}
-          <div>
-            <div className="sticky top-24">
-              <h2 className="text-2xl font-display font-bold mb-6">
-                Get in Touch
-              </h2>
+          <div className="md:col-span-1 space-y-8">
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Contact Information</h3>
+              <p className="text-muted-foreground mb-6">
+                We're here to help! Reach out to us through any of these channels.
+              </p>
               
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="flex items-start">
-                  <div className="mt-1 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-4 flex-shrink-0">
-                    <Mail className="h-5 w-5 text-primary" />
-                  </div>
+                  <Mail className="h-5 w-5 text-primary mr-3 mt-0.5" />
                   <div>
-                    <h3 className="font-medium mb-1">Email</h3>
-                    <p className="text-muted-foreground">support@flexfitness.com</p>
-                    <p className="text-muted-foreground">sales@flexfitness.com</p>
+                    <p className="font-medium">Email Us</p>
+                    <a 
+                      href="mailto:support@flexfitness.com" 
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      support@flexfitness.com
+                    </a>
                   </div>
                 </div>
                 
                 <div className="flex items-start">
-                  <div className="mt-1 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-4 flex-shrink-0">
-                    <Phone className="h-5 w-5 text-primary" />
-                  </div>
+                  <Phone className="h-5 w-5 text-primary mr-3 mt-0.5" />
                   <div>
-                    <h3 className="font-medium mb-1">Phone</h3>
-                    <p className="text-muted-foreground">+91 1140851401</p>
-                    <p className="text-muted-foreground">+91 9876543210</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="mt-1 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-4 flex-shrink-0">
-                    <MapPin className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium mb-1">Address</h3>
-                    <p className="text-muted-foreground">123 Fitness Avenue, Connaught Place</p>
-                    <p className="text-muted-foreground">New Delhi, Delhi 110001</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="mt-1 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-4 flex-shrink-0">
-                    <Clock className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium mb-1">Business Hours</h3>
-                    <p className="text-muted-foreground">Monday - Saturday: 10AM - 7PM</p>
-                    <p className="text-muted-foreground">Sunday: 11AM - 5PM</p>
+                    <p className="font-medium">Call Us</p>
+                    <a 
+                      href="tel:+918001234567" 
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      +91 8001234567
+                    </a>
+                    <p className="text-sm text-muted-foreground">
+                      Mon-Fri, 9am-6pm IST
+                    </p>
                   </div>
                 </div>
               </div>
-              
-              <div className="mt-8">
-                <h3 className="font-medium mb-3">Connect With Us</h3>
-                <div className="flex space-x-4">
-                  <a
-                    href="#"
-                    className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-primary/10 transition-colors"
-                    aria-label="Facebook"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-facebook">
-                      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                    </svg>
-                  </a>
-                  <a
-                    href="#"
-                    className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-primary/10 transition-colors"
-                    aria-label="Twitter"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-twitter">
-                      <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
-                    </svg>
-                  </a>
-                  <a
-                    href="#"
-                    className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-primary/10 transition-colors"
-                    aria-label="Instagram"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-instagram">
-                      <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
-                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
-                    </svg>
-                  </a>
-                  <a
-                    href="#"
-                    className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-primary/10 transition-colors"
-                    aria-label="LinkedIn"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-linkedin">
-                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                      <rect width="4" height="12" x="2" y="9"></rect>
-                      <circle cx="4" cy="4" r="2"></circle>
-                    </svg>
-                  </a>
+            </div>
+            
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Our Locations</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="font-medium">Mumbai Headquarters</p>
+                  <address className="text-muted-foreground not-italic">
+                    123 Fitness Avenue, Bandra<br />
+                    Mumbai, Maharashtra 400050<br />
+                    India
+                  </address>
+                </div>
+                
+                <div>
+                  <p className="font-medium">Delhi Branch</p>
+                  <address className="text-muted-foreground not-italic">
+                    456 Wellness Street, Connaught Place<br />
+                    New Delhi, 110001<br />
+                    India
+                  </address>
                 </div>
               </div>
             </div>
           </div>
           
           {/* Contact Form */}
-          <div className="lg:col-span-2">
-            <div className="bg-card rounded-xl border shadow-sm p-6 md:p-8">
-              <h2 className="text-2xl font-display font-bold mb-6">
-                Send Us a Message
-              </h2>
+          <div className="md:col-span-2">
+            <div className="bg-card rounded-lg border p-6 shadow-sm">
+              <h3 className="text-xl font-semibold mb-4">Send us a Message</h3>
               
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Your Name *</Label>
+                    <Label htmlFor="name">Your Name</Label>
                     <Input
                       id="name"
                       name="name"
                       value={formData.name}
-                      onChange={handleInputChange}
+                      onChange={handleChange}
+                      placeholder="John Doe"
                       required
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Address *</Label>
+                    <Label htmlFor="email">Email Address</Label>
                     <Input
                       id="email"
                       name="email"
                       type="email"
                       value={formData.email}
-                      onChange={handleInputChange}
+                      onChange={handleChange}
+                      placeholder="john@example.com"
                       required
                     />
                   </div>
@@ -217,111 +165,40 @@ const ContactPage = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="subject">Subject</Label>
-                  <Select value={formData.subject} onValueChange={handleSelectChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a subject" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="general">General Inquiry</SelectItem>
-                      <SelectItem value="support">Product Support</SelectItem>
-                      <SelectItem value="sales">Sales Question</SelectItem>
-                      <SelectItem value="returns">Returns & Refunds</SelectItem>
-                      <SelectItem value="wholesale">Wholesale Inquiry</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    id="subject"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    placeholder="How can we help you?"
+                  />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="message">Message *</Label>
+                  <Label htmlFor="message">Message</Label>
                   <Textarea
                     id="message"
                     name="message"
-                    rows={6}
                     value={formData.message}
-                    onChange={handleInputChange}
+                    onChange={handleChange}
+                    placeholder="Tell us about your query or feedback..."
+                    className="min-h-[150px]"
                     required
                   />
                 </div>
                 
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
+                <Button 
+                  type="submit" 
                   className="w-full sm:w-auto"
+                  disabled={isSubmitting}
                 >
-                  {isSubmitting ? (
-                    "Sending..."
-                  ) : (
-                    <>
-                      Send Message
-                      <Send className="ml-2 h-4 w-4" />
-                    </>
-                  )}
+                  {isSubmitting ? "Sending..." : "Send Message"}
                 </Button>
               </form>
             </div>
           </div>
         </div>
       </div>
-      
-      {/* Map */}
-      <div className="mt-10 h-96 bg-muted relative">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-muted-foreground">Map embedding goes here</p>
-        </div>
-      </div>
-      
-      {/* FAQ Section */}
-      <section className="py-20 bg-secondary/50">
-        <div className="max-container">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-3xl font-display font-bold mb-4">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-muted-foreground">
-              Find answers to common questions about our products, shipping, returns, and more.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-card rounded-xl border shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-3">
-                What is your shipping policy?
-              </h3>
-              <p className="text-muted-foreground">
-                We offer free standard shipping on all orders over ₹1,000. Orders under ₹1,000 have a flat shipping rate of ₹99. Delivery typically takes 4-7 business days, depending on your location.
-              </p>
-            </div>
-            
-            <div className="bg-card rounded-xl border shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-3">
-                How do I return a product?
-              </h3>
-              <p className="text-muted-foreground">
-                We accept returns within 7 days of delivery. Items must be in original condition with all packaging and accessories. Visit our Returns page for detailed instructions on how to initiate a return.
-              </p>
-            </div>
-            
-            <div className="bg-card rounded-xl border shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-3">
-                Do you offer product assembly?
-              </h3>
-              <p className="text-muted-foreground">
-                Yes, we offer professional assembly services for an additional fee. You can select this option during checkout. Our team will contact you to schedule a convenient time for assembly.
-              </p>
-            </div>
-            
-            <div className="bg-card rounded-xl border shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-3">
-                What warranty do your products have?
-              </h3>
-              <p className="text-muted-foreground">
-                All FlexFitness products come with our industry-leading 2-year warranty against manufacturing defects. This covers structural failures, welds, and surface finish issues not caused by normal wear and tear.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
     </Layout>
   );
 };

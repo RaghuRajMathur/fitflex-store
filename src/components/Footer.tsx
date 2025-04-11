@@ -110,17 +110,6 @@ const Footer = () => {
             <p className="text-sm text-muted-foreground">
               &copy; {new Date().getFullYear()} FlexFitness. All rights reserved.
             </p>
-            <div className="mt-4 md:mt-0 flex flex-wrap justify-center gap-4">
-              <Link to="/sitemap" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                Sitemap
-              </Link>
-              <Link to="/accessibility" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                Accessibility
-              </Link>
-              <Link to="/affiliate" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                Affiliate Program
-              </Link>
-            </div>
           </div>
         </div>
       </div>

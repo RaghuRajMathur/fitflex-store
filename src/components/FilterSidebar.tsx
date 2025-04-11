@@ -4,8 +4,9 @@ import { useStore } from "@/context/StoreContext";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
-import { FilterIcon, X, ChevronDown, ChevronUp } from "lucide-react";
+import { FilterIcon, X, ChevronDown, ChevronUp, IndianRupee } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatIndianRupees } from "@/utils/format";
 
 interface FilterSidebarProps {
   isOpen: boolean;
@@ -20,7 +21,7 @@ const FilterSidebar = ({ isOpen, onClose, isMobile = false }: FilterSidebarProps
   const [localFilters, setLocalFilters] = useState({
     category: filters.category,
     minPrice: filters.minPrice || 0,
-    maxPrice: filters.maxPrice || 300,
+    maxPrice: filters.maxPrice || 25000,
     inStock: filters.inStock
   });
   
@@ -80,7 +81,7 @@ const FilterSidebar = ({ isOpen, onClose, isMobile = false }: FilterSidebarProps
     setLocalFilters({
       category: null,
       minPrice: 0,
-      maxPrice: 300,
+      maxPrice: 25000,
       inStock: null
     });
   };
@@ -162,15 +163,28 @@ const FilterSidebar = ({ isOpen, onClose, isMobile = false }: FilterSidebarProps
           
           {openSections.price && (
             <div className="space-y-4 mt-4 px-1">
+              <div className="flex justify-between items-center mb-2">
+                <span className="flex items-center text-sm">
+                  <IndianRupee className="h-3 w-3 mr-1" />
+                  {localFilters.minPrice}
+                </span>
+                <span className="flex items-center text-sm">
+                  <IndianRupee className="h-3 w-3 mr-1" />
+                  {localFilters.maxPrice}
+                </span>
+              </div>
               <Slider
-                defaultValue={[localFilters.minPrice || 0, localFilters.maxPrice || 300]}
-                max={300}
-                step={10}
+                value={[localFilters.minPrice || 0, localFilters.maxPrice || 25000]}
+                max={25000}
+                step={1000}
                 onValueChange={handlePriceChange}
+                className="my-6"
               />
-              <div className="flex items-center justify-between">
-                <span className="text-sm">${localFilters.minPrice}</span>
-                <span className="text-sm">${localFilters.maxPrice}+</span>
+              <div className="bg-muted/30 rounded-md p-3 text-sm">
+                <p className="font-medium mb-1">Selected Range:</p>
+                <p className="flex items-center justify-center text-primary font-semibold">
+                  {formatIndianRupees(localFilters.minPrice)} - {formatIndianRupees(localFilters.maxPrice)}
+                </p>
               </div>
             </div>
           )}
