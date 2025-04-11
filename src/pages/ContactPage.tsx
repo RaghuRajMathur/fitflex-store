@@ -44,7 +44,7 @@ const ContactPage = () => {
       // Send the email using our service
       const response = await sendContactEmail(formData);
       
-      if ('success' in response && response.success) {
+      if (response.success) {
         toast.success("Message sent successfully! We'll get back to you soon.");
         setFormData({
           name: "",

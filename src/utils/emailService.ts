@@ -9,7 +9,7 @@ export const sendContactEmail = async (formData: {
   email: string;
   subject: string;
   message: string;
-}) => {
+}): Promise<{ success: boolean; message: string }> => {
   // In a real application, this would make a request to a backend API
   // For now, we'll simulate sending an email and log it to the console
   
