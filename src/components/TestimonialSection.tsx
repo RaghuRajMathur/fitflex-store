@@ -15,35 +15,35 @@ interface Testimonial {
 const testimonials: Testimonial[] = [
   {
     id: 1,
-    name: "Alex Morgan",
+    name: "Rajesh Kumar",
     role: "CrossFit Athlete",
-    image: "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=300&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1629310997127-a702f89eaa92?w=300&auto=format&fit=crop",
     rating: 5,
     comment: "The Olympic barbell from FlexFitness has transformed my training. The quality is exceptional, providing the perfect balance of durability and performance."
   },
   {
     id: 2,
-    name: "James Wilson",
+    name: "Vikram Singh",
     role: "Personal Trainer",
-    image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=300&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1578857332235-f39971be858b?w=300&auto=format&fit=crop",
     rating: 5,
     comment: "As a personal trainer, I recommend FlexFitness equipment to all my clients. The adjustable dumbbell set is a game-changer for home workouts - versatile and space-saving."
   },
   {
     id: 3,
-    name: "Sophia Chen",
+    name: "Priya Sharma",
     role: "Fitness Enthusiast",
-    image: "https://images.unsplash.com/photo-1534751516642-a1af1ef26a56?w=300&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1610214552218-4a384a9a5a79?w=300&auto=format&fit=crop",
     rating: 4,
     comment: "I love the resistance bands set! Perfect for my home workouts and travel. The quality is excellent, and they've held up well over months of regular use."
   },
   {
     id: 4,
-    name: "Michael Johnson",
+    name: "Aditya Patel",
     role: "Powerlifter",
-    image: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=300&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=300&auto=format&fit=crop",
     rating: 5,
-    comment: "The leather weightlifting belt provides exceptional support during heavy lifts. The quality of materials and craftsmanship is unmatched. Worth every penny."
+    comment: "The leather weightlifting belt provides exceptional support during heavy lifts. The quality of materials and craftsmanship is unmatched. Worth every rupee."
   }
 ];
 

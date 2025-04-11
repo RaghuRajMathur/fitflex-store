@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
+import { sendContactEmail } from "@/utils/emailService";
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -24,7 +25,11 @@ const ContactPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSelectChange = (value: string) => {
+    setFormData(prev => ({ ...prev, subject: value }));
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Simple validation
@@ -35,8 +40,10 @@ const ContactPage = () => {
     
     setIsSubmitting(true);
     
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      // Send the email using our service
+      await sendContactEmail(formData);
+      
       toast.success("Message sent successfully! We'll get back to you soon.");
       setFormData({
         name: "",
@@ -44,8 +51,12 @@ const ContactPage = () => {
         subject: "",
         message: "",
       });
+    } catch (error) {
+      toast.error("Failed to send message. Please try again later.");
+      console.error("Error sending email:", error);
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
   
   return (
@@ -91,8 +102,8 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <h3 className="font-medium mb-1">Phone</h3>
-                    <p className="text-muted-foreground">+1 (800) 555-7890</p>
-                    <p className="text-muted-foreground">+1 (800) 555-1234</p>
+                    <p className="text-muted-foreground">+91 1140851401</p>
+                    <p className="text-muted-foreground">+91 9876543210</p>
                   </div>
                 </div>
                 
@@ -102,8 +113,8 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <h3 className="font-medium mb-1">Address</h3>
-                    <p className="text-muted-foreground">123 Fitness Avenue</p>
-                    <p className="text-muted-foreground">San Francisco, CA 94103</p>
+                    <p className="text-muted-foreground">123 Fitness Avenue, Connaught Place</p>
+                    <p className="text-muted-foreground">New Delhi, Delhi 110001</p>
                   </div>
                 </div>
                 
@@ -113,9 +124,8 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <h3 className="font-medium mb-1">Business Hours</h3>
-                    <p className="text-muted-foreground">Monday - Friday: 9AM - 6PM</p>
-                    <p className="text-muted-foreground">Saturday: 10AM - 4PM</p>
-                    <p className="text-muted-foreground">Sunday: Closed</p>
+                    <p className="text-muted-foreground">Monday - Saturday: 10AM - 7PM</p>
+                    <p className="text-muted-foreground">Sunday: 11AM - 5PM</p>
                   </div>
                 </div>
               </div>
@@ -203,7 +213,7 @@ const ContactPage = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="subject">Subject</Label>
-                  <Select>
+                  <Select value={formData.subject} onValueChange={handleSelectChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a subject" />
                     </SelectTrigger>
@@ -275,7 +285,7 @@ const ContactPage = () => {
                 What is your shipping policy?
               </h3>
               <p className="text-muted-foreground">
-                We offer free standard shipping on all orders over $100. Orders under $100 have a flat shipping rate of $8.95. Delivery typically takes 3-5 business days, depending on your location.
+                We offer free standard shipping on all orders over ₹1,000. Orders under ₹1,000 have a flat shipping rate of ₹99. Delivery typically takes 4-7 business days, depending on your location.
               </p>
             </div>
             
@@ -284,7 +294,7 @@ const ContactPage = () => {
                 How do I return a product?
               </h3>
               <p className="text-muted-foreground">
-                We accept returns within 30 days of delivery. Items must be in original condition with all packaging and accessories. Visit our Returns page for detailed instructions on how to initiate a return.
+                We accept returns within 7 days of delivery. Items must be in original condition with all packaging and accessories. Visit our Returns page for detailed instructions on how to initiate a return.
               </p>
             </div>
             
@@ -302,7 +312,7 @@ const ContactPage = () => {
                 What warranty do your products have?
               </h3>
               <p className="text-muted-foreground">
-                All FlexFitness products come with our industry-leading 10-year warranty against manufacturing defects. This covers structural failures, welds, and surface finish issues not caused by normal wear and tear.
+                All FlexFitness products come with our industry-leading 2-year warranty against manufacturing defects. This covers structural failures, welds, and surface finish issues not caused by normal wear and tear.
               </p>
             </div>
           </div>

@@ -8,12 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { User, ShoppingBag, Heart, CreditCard, Settings, LogOut } from "lucide-react";
+import { formatIndianRupees } from "@/utils/format";
 
 const AccountPage = () => {
   const [user] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&auto=format&fit=crop",
+    name: "Raghuraj Mathur",
+    email: "raghuu715@gmail.com",
+    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=200&auto=format&fit=crop",
   });
   
   const [profileForm, setProfileForm] = useState({
@@ -82,24 +83,32 @@ const AccountPage = () => {
       id: "ORD123456",
       date: "2023-06-15",
       status: "Delivered",
-      total: 249.98,
+      total: 12499,
       items: 2,
     },
     {
       id: "ORD123455",
       date: "2023-05-03",
       status: "Delivered",
-      total: 89.99,
+      total: 4999,
       items: 1,
     },
     {
       id: "ORD123454",
       date: "2023-04-18",
       status: "Cancelled",
-      total: 129.99,
+      total: 7999,
       items: 1,
     },
   ];
+
+  // Calculate total spent
+  const totalSpent = recentOrders.reduce((total, order) => {
+    if (order.status !== "Cancelled") {
+      return total + order.total;
+    }
+    return total;
+  }, 0);
   
   return (
     <Layout>
@@ -189,7 +198,7 @@ const AccountPage = () => {
                       <CreditCard className="h-5 w-5 mr-2 text-muted-foreground" />
                       <h3 className="font-semibold">Spent</h3>
                     </div>
-                    <p className="text-3xl font-bold mb-1">$469.96</p>
+                    <p className="text-3xl font-bold mb-1">{formatIndianRupees(totalSpent)}</p>
                     <p className="text-sm text-muted-foreground">Total spent</p>
                   </div>
                 </div>
@@ -232,7 +241,7 @@ const AccountPage = () => {
                               </span>
                             </td>
                             <td className="py-3 pr-4 font-medium">
-                              ${order.total.toFixed(2)}
+                              {formatIndianRupees(order.total)}
                             </td>
                             <td className="py-3">
                               <Button variant="outline" size="sm">
@@ -295,7 +304,7 @@ const AccountPage = () => {
                                   </span>
                                 </td>
                                 <td className="py-3 pr-4 font-medium">
-                                  ${order.total.toFixed(2)}
+                                  {formatIndianRupees(order.total)}
                                 </td>
                                 <td className="py-3">
                                   <Button variant="outline" size="sm">
@@ -359,7 +368,7 @@ const AccountPage = () => {
                           type="tel"
                           value={profileForm.phone}
                           onChange={handleProfileChange}
-                          placeholder="(123) 456-7890"
+                          placeholder="+91 98765 43210"
                         />
                       </div>
                     </div>
@@ -389,7 +398,7 @@ const AccountPage = () => {
                       </div>
                       
                       <div className="space-y-2">
-                        <Label htmlFor="state">State/Province</Label>
+                        <Label htmlFor="state">State</Label>
                         <Input
                           id="state"
                           name="state"
@@ -399,7 +408,7 @@ const AccountPage = () => {
                       </div>
                       
                       <div className="space-y-2">
-                        <Label htmlFor="zipCode">Postal Code</Label>
+                        <Label htmlFor="zipCode">PIN Code</Label>
                         <Input
                           id="zipCode"
                           name="zipCode"

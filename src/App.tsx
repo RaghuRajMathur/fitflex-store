@@ -11,7 +11,9 @@ import FavoritesPage from './pages/FavoritesPage';
 import NotFound from './pages/NotFound';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
-import PolicyPage from './pages/PolicyPage';
+import ShippingPolicyPage from './pages/ShippingPolicyPage';
+import ReturnPolicyPage from './pages/ReturnPolicyPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import FAQPage from './pages/FAQPage';
 import AccountPage from './pages/AccountPage';
 import AdminDashboard from './pages/AdminDashboard';
@@ -46,7 +48,9 @@ function App() {
               <Route path="/favorites" element={<FavoritesPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
-              <Route path="/policy" element={<PolicyPage />} />
+              <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
+              <Route path="/return-policy" element={<ReturnPolicyPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/faq" element={<FAQPage />} />
               <Route path="/account" element={<AccountPage />} />
               <Route path="/admin" element={<AdminDashboard />} />

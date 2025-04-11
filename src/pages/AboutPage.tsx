@@ -36,7 +36,7 @@ const AboutPage = () => {
                 We noticed that fitness equipment on the market was either high-quality but prohibitively expensive, or affordable but poorly built. We set out to bridge this gap by designing premium products that are accessible to fitness enthusiasts of all levels.
               </p>
               <p className="text-muted-foreground">
-                Over a decade later, we've grown into a leading provider of fitness equipment, serving customers in over 50 countries worldwide. Our commitment to quality, innovation, and customer satisfaction remains unchanged.
+                Over a decade later, we've grown into a leading provider of fitness equipment, serving customers across India and neighboring countries. Our commitment to quality, innovation, and customer satisfaction remains unchanged.
               </p>
             </div>
             <div className="rounded-xl overflow-hidden">
@@ -128,7 +128,7 @@ const AboutPage = () => {
               </div>
               <h3 className="text-xl font-semibold mb-4">Community</h3>
               <p className="text-muted-foreground">
-                We believe in the power of community to motivate and inspire. We're proud to support fitness communities worldwide through sponsorships and partnerships.
+                We believe in the power of community to motivate and inspire. We're proud to support fitness communities throughout India through sponsorships and partnerships.
               </p>
             </div>
           </div>
@@ -151,48 +151,48 @@ const AboutPage = () => {
             <div className="text-center">
               <div className="aspect-square rounded-xl overflow-hidden mb-4">
                 <img
-                  src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format&fit=crop"
-                  alt="Michael Johnson"
+                  src="https://images.unsplash.com/photo-1578857332235-f39971be858b?w=400&auto=format&fit=crop"
+                  alt="Vikram Kapoor"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <h3 className="font-semibold text-lg">Michael Johnson</h3>
+              <h3 className="font-semibold text-lg">Vikram Kapoor</h3>
               <p className="text-muted-foreground text-sm">CEO & Co-Founder</p>
             </div>
 
             <div className="text-center">
               <div className="aspect-square rounded-xl overflow-hidden mb-4">
                 <img
-                  src="https://images.unsplash.com/photo-1534751516642-a1af1ef26a56?w=400&auto=format&fit=crop"
-                  alt="Sarah Chen"
+                  src="https://images.unsplash.com/photo-1610214552218-4a384a9a5a79?w=400&auto=format&fit=crop"
+                  alt="Neha Verma"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <h3 className="font-semibold text-lg">Sarah Chen</h3>
+              <h3 className="font-semibold text-lg">Neha Verma</h3>
               <p className="text-muted-foreground text-sm">COO & Co-Founder</p>
             </div>
 
             <div className="text-center">
               <div className="aspect-square rounded-xl overflow-hidden mb-4">
                 <img
-                  src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=400&auto=format&fit=crop"
-                  alt="David Williams"
+                  src="https://images.unsplash.com/photo-1629310997127-a702f89eaa92?w=400&auto=format&fit=crop"
+                  alt="Rajesh Patil"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <h3 className="font-semibold text-lg">David Williams</h3>
+              <h3 className="font-semibold text-lg">Rajesh Patil</h3>
               <p className="text-muted-foreground text-sm">Head of Product Design</p>
             </div>
 
             <div className="text-center">
               <div className="aspect-square rounded-xl overflow-hidden mb-4">
                 <img
-                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop"
-                  alt="Emily Rodriguez"
+                  src="https://images.unsplash.com/photo-1535325019257-3f8a7193a0c2?w=400&auto=format&fit=crop"
+                  alt="Ananya Singh"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <h3 className="font-semibold text-lg">Emily Rodriguez</h3>
+              <h3 className="font-semibold text-lg">Ananya Singh</h3>
               <p className="text-muted-foreground text-sm">Customer Experience</p>
             </div>
           </div>
