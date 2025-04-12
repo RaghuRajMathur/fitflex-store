@@ -232,15 +232,21 @@ const CheckoutPage = () => {
           console.log('Payment successful:', response);
           
           // Save order to database
-          await saveOrder(response.razorpay_payment_id, 'razorpay');
+          const newOrderId = await saveOrder(response.razorpay_payment_id, 'razorpay');
+          setOrderId(newOrderId);
           
-          // Process order
-          processOrder(response.razorpay_payment_id);
+          // Clear cart and move to confirmation step
+          clearCart();
+          setCurrentStep("confirmation");
+          window.scrollTo(0, 0);
           
           toast({
             title: "Payment Successful",
             description: "Your payment was processed successfully!",
           });
+          
+          // Important: Set isProcessing to false to unblock UI
+          setIsProcessing(false);
         } catch (error) {
           console.error('Error processing order:', error);
           setIsProcessing(false);
@@ -292,21 +298,20 @@ const CheckoutPage = () => {
     try {
       // If paying with COD, save the order now
       if (paymentMethod === 'cod' && !orderId) {
-        await saveOrder('', 'cod');
+        const newOrderId = await saveOrder('', 'cod');
+        setOrderId(newOrderId);
       }
       
-      // Simulate processing
-      setTimeout(() => {
-        setIsProcessing(false);
-        setCurrentStep("confirmation");
-        clearCart();
-        window.scrollTo(0, 0);
-        
-        toast({
-          title: "Order Placed",
-          description: "Your order has been placed successfully!",
-        });
-      }, 1000);
+      // Clear cart and go to confirmation
+      clearCart();
+      setIsProcessing(false);
+      setCurrentStep("confirmation");
+      window.scrollTo(0, 0);
+      
+      toast({
+        title: "Order Placed",
+        description: "Your order has been placed successfully!",
+      });
     } catch (error) {
       console.error('Error processing order:', error);
       setIsProcessing(false);
